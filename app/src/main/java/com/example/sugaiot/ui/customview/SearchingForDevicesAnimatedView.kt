@@ -1,4 +1,4 @@
-package com.example.sugaiot.ui.customviews
+package com.example.sugaiot.ui.customview
 
 import android.animation.ValueAnimator
 import android.content.Context

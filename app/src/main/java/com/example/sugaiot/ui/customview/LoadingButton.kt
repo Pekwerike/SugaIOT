@@ -1,4 +1,4 @@
-package com.example.sugaiot.ui.customviews
+package com.example.sugaiot.ui.customview
 
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
@@ -9,10 +9,6 @@ import android.graphics.RectF
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import androidx.core.animation.addListener
-import androidx.core.animation.doOnEnd
-import androidx.core.animation.doOnRepeat
-import androidx.core.animation.doOnStart
 import androidx.core.content.ContextCompat
 import com.example.sugaiot.R
 import com.google.android.material.button.MaterialButton
