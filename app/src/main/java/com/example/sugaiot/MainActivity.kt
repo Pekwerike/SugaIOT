@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         bluetoothAdapter?.bluetoothLeScanner
     }
 
-    private var isScanning: Boolean = false
+
     private val bluetoothLeScanResult: MutableList<ScanResult> = mutableListOf()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var activityMainBinding: ActivityMainBinding
