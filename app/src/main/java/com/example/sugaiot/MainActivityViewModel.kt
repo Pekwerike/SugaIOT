@@ -6,9 +6,7 @@ import androidx.lifecycle.ViewModel
 
 class MainActivityViewModel : ViewModel() {
 
-    private val _isScanning = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _isScanning : MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
     val isScanning: LiveData<Boolean> = _isScanning
 
     fun scanStateUpdated() {

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SugaIOT</string>
+    <string name="start_search_label">Start search</string>
+    <string name="stop_search_label">Stop Search</string>
 </resources>
