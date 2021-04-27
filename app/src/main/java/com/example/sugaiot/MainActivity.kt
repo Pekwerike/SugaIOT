@@ -36,8 +36,6 @@ class MainActivity : AppCompatActivity() {
         bluetoothAdapter?.bluetoothLeScanner
     }
 
-
-    private val bluetoothLeScanResult: MutableList<ScanResult> = mutableListOf()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var bluetoothDevicesRecyclerViewAdapter: BluetoothDevicesRecyclerViewAdapter
@@ -60,6 +58,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeMainActivityViewModelLiveData() {
+        mainActivityViewModel.bluetoothLeScanResult.observe(this) {
+            it?.let {
+                bluetoothDevicesRecyclerViewAdapter.submitList(it.map { scanResult ->
+                    scanResult.device
+                })
+            }
+        }
+
         mainActivityViewModel.isScanning.observe(this) {
             it?.let {
                 activityMainBinding.startSearchButtonLabel = if (it) {
@@ -90,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     private val bluetoothLeScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             result?.let {
-                bluetoothLeScanResult.add(result)
+                mainActivityViewModel.addBluetoothLeScanResult(scanResult = result)
             }
         }
     }
