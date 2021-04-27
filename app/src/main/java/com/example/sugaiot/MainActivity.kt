@@ -8,10 +8,12 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.getSystemService
 import androidx.databinding.DataBindingUtil
 import com.example.sugaiot.databinding.ActivityMainBinding
+import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -38,15 +40,21 @@ class MainActivity : AppCompatActivity() {
     private val bluetoothLeScanResult: MutableList<ScanResult> = mutableListOf()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var activityMainBinding: ActivityMainBinding
+    private lateinit var bluetoothDevicesRecyclerViewAdapter: BluetoothDevicesRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        bluetoothDevicesRecyclerViewAdapter = BluetoothDevicesRecyclerViewAdapter(
+            BluetoothDevicesRecyclerViewAdapter.BluetoothDeviceOnConnectClickListener {
+                Toast.makeText(this, "Selected ${it.name}", Toast.LENGTH_SHORT).show()
+            })
         activityMainBinding.apply {
             startSearchButtonLabel = getString(R.string.start_search_label)
             startSearchButton.setOnClickListener {
                 scanForDevices()
             }
+            discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
         }
 
     }
