@@ -4,6 +4,7 @@ buildscript {
     ext {
         kotlin_version = "1.4.32"
         activity_version = "1.2.2"
+        hilt_version = "2.35"
     }
     repositories {
         google()
