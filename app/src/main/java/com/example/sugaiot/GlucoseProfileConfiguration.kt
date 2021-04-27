@@ -5,7 +5,10 @@ package com.example.sugaiot
 The 16-bit UUID Numbers Document contains a list of 16-bit Universally Unique Identifier (UUID) Values
 for GATT Service, GATT Unit, GATT Declaration, GATT Descriptor, GATT Characteristic and Object Type,
 16-bit UUID for members, Protocol Identifier, SDO GATT Service, Service Class and Profile
- https://www.bluetooth.com/specifications/assigned-numbers/
+https://www.bluetooth.com/specifications/assigned-numbers/
+
+The UUID configurations below are those relevant for interacting with a Glucose profile in a
+Ble enabled glucose meter
 * */
 object GlucoseProfileConfiguration {
     const val GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID = "00002A18-0000-1000-8000-00805F9B34FB"
