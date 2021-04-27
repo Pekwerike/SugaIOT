@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private var isScanning: Boolean = false
     private val bluetoothLeScanResult: MutableList<ScanResult> = mutableListOf()
+    private val mainActivityViewModel : MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
