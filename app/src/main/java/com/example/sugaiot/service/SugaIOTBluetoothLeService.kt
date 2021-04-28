@@ -15,11 +15,13 @@ class SugaIOTBluetoothLeService : Service() {
     private val sugaIOTBluetoothLeServiceBinder: IBinder =
         SugaIOTBluetoothLeServiceBinder()
 
-    @Inject
-    lateinit var bluetoothAdapter: BluetoothAdapter
+    private val bluetoothAdapter: BluetoothAdapter? by lazy {
+        (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+    }
 
-    @Inject
-    lateinit var bluetoothLeScanner: BluetoothLeScanner
+    private val bluetoothLeScanner: BluetoothLeScanner? by lazy {
+        bluetoothAdapter?.bluetoothLeScanner
+    }
 
     private lateinit var bluetoothGatt: BluetoothGatt
 

@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -49,8 +50,9 @@ class MainActivity : AppCompatActivity() {
     // code to manager SugaIOTBluetoothLeService lifecycle
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            sugaIOTBluetoothLeService = (service as SugaIOTBluetoothLeService.SugaIOTBluetoothLeServiceBinder)
-                .getServiceInstance()
+            sugaIOTBluetoothLeService =
+                (service as SugaIOTBluetoothLeService.SugaIOTBluetoothLeServiceBinder)
+                    .getServiceInstance()
 
         }
 
@@ -64,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         bluetoothDevicesRecyclerViewAdapter = BluetoothDevicesRecyclerViewAdapter(
             BluetoothDevicesRecyclerViewAdapter.BluetoothDeviceOnConnectClickListener {
-                displayToast(it.address)
+                connectToBluetoothLeDevice(it)
             })
         activityMainBinding.apply {
             startSearchButton.setOnClickListener {
@@ -77,10 +79,17 @@ class MainActivity : AppCompatActivity() {
             discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
         }
         observeMainActivityViewModelLiveData()
+        //start and bind to SugaIOTBluetoothService when ever on create is called
+        Intent(this, SugaIOTBluetoothLeService::class.java).also { intent ->
+            startService(intent)
+            bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+        }
     }
 
-    private fun connectToBlutoothLeDevice(device: BluetoothDevice) {
 
+    private fun connectToBluetoothLeDevice(device: BluetoothDevice) {
+        // onConnect to device, put the SugaIOTBluetoothLeService in the foreground
+        sugaIOTBluetoothLeService?.connectToBluetoothLeDevice(device)
     }
 
     private fun stopScanForLeDevices() {
@@ -100,7 +109,12 @@ class MainActivity : AppCompatActivity() {
             mainActivityViewModel.scanStateUpdated()
             // todo, Improve the scan process to look for only devices with the glucose service uuid
             CoroutineScope(Dispatchers.Main).launch {
-                bluetoothLeScanner?.startScan(bluetoothLeScanCallback)
+                bluetoothLeScanner?.startScan(
+                    mutableListOf<ScanFilter>(),
+                    ScanSettings.Builder().setScanMode(
+                        ScanSettings.SCAN_MODE_LOW_LATENCY
+                    ).build(), bluetoothLeScanCallback
+                )
                 delay(60000) // stop scan after 1 minute
                 bluetoothLeScanner?.stopScan(bluetoothLeScanCallback)
                 mainActivityViewModel.scanStateUpdated()
@@ -197,5 +211,11 @@ class MainActivity : AppCompatActivity() {
                 it.enable()
             }
         }
+    }
+
+    override fun onDestroy() {
+        // unbind from SugaIOTBluetoothLeService when onDestroy is called
+        sugaIOTBluetoothLeService?.unbindService(serviceConnection)
+        super.onDestroy()
     }
 }
