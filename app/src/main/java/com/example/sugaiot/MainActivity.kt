@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         bluetoothDevicesRecyclerViewAdapter = BluetoothDevicesRecyclerViewAdapter(
             BluetoothDevicesRecyclerViewAdapter.BluetoothDeviceOnConnectClickListener {
-                Toast.makeText(this, "Selected ${it.name}", Toast.LENGTH_SHORT).show()
+                displayToast(it.address)
             })
         activityMainBinding.apply {
             startSearchButton.setOnClickListener {

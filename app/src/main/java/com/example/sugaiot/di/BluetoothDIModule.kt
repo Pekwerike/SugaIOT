@@ -19,8 +19,8 @@ class BluetoothDIModule {
 
     @Provides
     @Singleton
-    fun getBluetoothAdapter(@ApplicationContext context: Context): BluetoothAdapter? {
-        val bluetoothAdapter: BluetoothAdapter? by lazy {
+    fun getBluetoothAdapter(@ApplicationContext context: Context): BluetoothAdapter {
+        val bluetoothAdapter: BluetoothAdapter by lazy {
             (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         }
         return bluetoothAdapter
@@ -28,9 +28,9 @@ class BluetoothDIModule {
 
     @Provides
     @Singleton
-    fun getBluetoothLeScanner(bluetoothAdapter: BluetoothAdapter?): BluetoothLeScanner? {
-        val bluetoothLeScanner: BluetoothLeScanner? by lazy {
-            bluetoothAdapter?.bluetoothLeScanner
+    fun getBluetoothLeScanner(bluetoothAdapter: BluetoothAdapter): BluetoothLeScanner {
+        val bluetoothLeScanner: BluetoothLeScanner by lazy {
+            bluetoothAdapter.bluetoothLeScanner
         }
         return bluetoothLeScanner
     }
