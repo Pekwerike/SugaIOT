@@ -28,9 +28,11 @@
             android:id="@+id/connect_to_bluetooth_device_button"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_margin="8dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
             android:text="@string/connect"
             android:textAllCaps="false" />
     </LinearLayout>

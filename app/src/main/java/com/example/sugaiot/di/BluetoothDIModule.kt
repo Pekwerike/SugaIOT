@@ -17,7 +17,6 @@ import javax.inject.Singleton
 @Module
 class BluetoothDIModule {
 
-
     @Provides
     @Singleton
     fun getBluetoothAdapter(@ApplicationContext context: Context): BluetoothAdapter? {

@@ -1,11 +1,10 @@
-package com.example.sugaiot
+package com.example.sugaiot.viewmodel
 
 import android.bluetooth.le.ScanResult
 import android.util.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

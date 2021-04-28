@@ -1,7 +1,6 @@
 package com.example.sugaiot
 
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.Context
@@ -9,46 +8,32 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.ParcelUuid
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
-import androidx.core.content.getSystemService
 import androidx.databinding.DataBindingUtil
 import com.example.sugaiot.databinding.ActivityMainBinding
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
+import com.example.sugaiot.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.jar.Manifest
-import javax.inject.Inject
 
 
 const val ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE = 1010
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-  /*  private val bluetoothManager: BluetoothManager by lazy {
-        getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private val bluetoothAdapter: BluetoothAdapter? by lazy {
+        (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
     }
 
-
-*/
-   @Inject
-   lateinit var bluetoothAdapter : BluetoothAdapter
-   @Inject
-   lateinit var bluetoothLeScanner: BluetoothLeScanner
-   /* private val bluetoothAdapter: BluetoothAdapter? by lazy {*/
-   /*     bluetoothManager.adapter*/
-   /* }*/
-
-    /*   private val bluetoothLeScanner: BluetoothLeScanner? by lazy {
-           bluetoothAdapter?.bluetoothLeScanner
-       }
-   */
+    private val bluetoothLeScanner: BluetoothLeScanner? by lazy {
+        bluetoothAdapter?.bluetoothLeScanner
+    }
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var bluetoothDevicesRecyclerViewAdapter: BluetoothDevicesRecyclerViewAdapter
@@ -69,9 +54,7 @@ class MainActivity : AppCompatActivity() {
         observeMainActivityViewModelLiveData()
     }
 
-
     private fun observeMainActivityViewModelLiveData() {
-
         mainActivityViewModel.bluetoothLeScanResultMap.observe(this) {
             it?.let {
                 bluetoothDevicesRecyclerViewAdapter.submitList(
@@ -95,12 +78,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun stopScanForLeDevices() {
         if (!mainActivityViewModel.isScanning.value!!) return
-        bluetoothLeScanner.stopScan(bluetoothLeScanCallback)
+        bluetoothLeScanner?.stopScan(bluetoothLeScanCallback)
     }
 
     private fun scanForDevices() {
         if (bluetoothAdapter == null) return
-        if (!hasAccesstoDeviceFineLocation()) {
+        if (!hasAccessToDeviceFineLocation()) {
             requestAccessToDeviceFineLocation()
             return
         }
@@ -123,7 +106,6 @@ class MainActivity : AppCompatActivity() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             result?.let {
                 mainActivityViewModel.addBluetoothLeScanResult(scanResult = result)
-                displayToast(result.scanRecord?.bytes?.contentToString() ?: "omom")
                 AdvertiseData.Builder().addServiceData(
                     ParcelUuid
                         .fromString(
@@ -137,7 +119,6 @@ class MainActivity : AppCompatActivity() {
             results?.let {
                 it.forEach { scanResult ->
                     mainActivityViewModel.addBluetoothLeScanResult(scanResult = scanResult)
-                    displayToast("Discovered multiple device")
                 }
             }
         }
@@ -147,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun hasAccesstoDeviceFineLocation(): Boolean {
+    private fun hasAccessToDeviceFineLocation(): Boolean {
         return ActivityCompat.checkSelfPermission(
             this,
             android.Manifest.permission.ACCESS_FINE_LOCATION
