@@ -140,6 +140,13 @@ class SugaIOTBluetoothLeService : Service() {
 
                         val sequenceNumberField = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1)
 
+                        val baseTimeYear = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 2)
+                        val baseTimeMonth = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 4)
+                        val baseTimeDay = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 5)
+                        val baseTimeHours = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 6)
+                        val baseTimeMinutes = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 7)
+                        val baseTimeSeconds = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 8)
+
                     }
                 }
             }
