@@ -15,6 +15,7 @@ Ble enabled glucose meter.
 Additional references on Glucose profile
 https://www.bluetooth.com/specifications/specs/
 https://www.bluetooth.com/wp-content/uploads/Sitecore-Media-Library/Gatt/Xml/Characteristics/org.bluetooth.characteristic.glucose_measurement.xml
+https://www.bluetooth.com/wp-content/uploads/Sitecore-Media-Library/Gatt/Xml/Characteristics/org.bluetooth.characteristic.date_time.xml
 */
 object GlucoseProfileConfiguration {
 
