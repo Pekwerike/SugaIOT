@@ -121,7 +121,6 @@ class SugaIOTBluetoothLeService : Service() {
                         BluetoothGattCharacteristic.FORMAT_UINT8,
                         1
                     )
-
                     bluetoothGatt.writeCharacteristic(it)
                 }
 
@@ -133,6 +132,14 @@ class SugaIOTBluetoothLeService : Service() {
             gatt: BluetoothGatt?,
             characteristic: BluetoothGattCharacteristic?
         ) {
+            characteristic?.let {
+                val characteristicUUID = characteristic.uuid
+                when (characteristicUUID) {
+                    GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
+
+                    }
+                }
+            }
             /* TODO, 1. Check if the characteristics with new update is the Glucose measurement characteristic
                  2. If it is glucose measurement characteristics, read the new value, and jump over to onCharacteristicRead
                    */

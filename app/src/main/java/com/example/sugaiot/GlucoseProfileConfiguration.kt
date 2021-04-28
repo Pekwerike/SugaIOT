@@ -1,6 +1,5 @@
 package com.example.sugaiot
 
-import android.util.ArrayMap
 import java.util.*
 
 
@@ -50,5 +49,16 @@ object GlucoseProfileConfiguration {
     const val FILTER_TYPE_NULL = 0
     const val FILTER_TYPE_SEQUENCE_NUMBER = 1
     const val FILTER_TYPE_USER_FACING_TIME = 2
+
+    // Glucose profile response type
+    const val RESPONSE_SUCCESS: Int = 1
+    const val RESPONSE_OP_CODE_NOT_SUPPORTED = 2
+    const val RESPONSE_INVALID_OPERATOR = 3
+    const val RESPONSE_OPERATOR_NOT_SUPPORTED = 4
+    const val RESPONSE_INVALID_OPERAND = 5
+    const val RESPONSE_NO_RECORDS_FOUND = 6
+    const val RESPONSE_ABORT_UNSUCCESSFUL = 7
+    const val RESPONSE_PROCEDURE_NOT_COMPLETED = 8
+    const val RESPONSE_OPERAND_NOT_SUPPORTED = 9
 
 }
