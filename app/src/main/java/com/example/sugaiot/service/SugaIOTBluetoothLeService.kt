@@ -175,25 +175,39 @@ class SugaIOTBluetoothLeService : Service() {
                             offset += 2 // offset is 11
                             characteristic.getIntValue(
                                 BluetoothGattCharacteristic.FORMAT_UINT16,
-                                offset
+                                9
                             )
                         } else {
                             0
                         }
 
+                        val glucoseConcentrationUnit: String
                         if (flag and (1 shl 1) > 0) { // glucose concentration field exists
-                            if (flag and (1 shl 2) > 0) { // glucose concentration unit of measurement is mol/L
-
-                            }else { // glucose concentration unit of measurement is kg/L
-
+                            val glucoseConcentration = if (flag and (1 shl 2) > 0) {
+                                // glucose concentration unit of measurement is mol/L
+                                characteristic.getFloatValue(
+                                    BluetoothGattCharacteristic.FORMAT_SFLOAT,
+                                    offset
+                                )
+                                glucoseConcentrationUnit = "mol/L"
+                            } else {
+                                // glucose concentration unit of measurement is kg/L
+                                characteristic.getFloatValue(
+                                    BluetoothGattCharacteristic.FORMAT_SFLOAT,
+                                    offset
+                                )
+                                glucoseConcentrationUnit = "kg/L"
                             }
+                            offset += 2 // offset is 13
+                            val typeAndSampleLocation = characteristic.getIntValue(
+                                BluetoothGattCharacteristic.FORMAT_UINT8,
+                                offset
+                            )
+                            val type = typeAndSampleLocation shr 4
+                            val sampleLocation = typeAndSampleLocation and 15
+                            offset += 1 // offset is 14
+                        }
 
-                        }
-                        val glucoseConcentrationUnit = if ()
-                        val glucoseConcentrationInKgPerLit: Float = if (flag and (1 shl 1) > 0) {
-                            offset += 1 // offset is 12
-                            characteristic.getFloatValue()
-                        }
                     }
                 }
             }
