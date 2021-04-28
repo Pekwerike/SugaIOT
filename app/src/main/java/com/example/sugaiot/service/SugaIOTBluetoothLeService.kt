@@ -136,6 +136,9 @@ class SugaIOTBluetoothLeService : Service() {
                 val characteristicUUID = characteristic.uuid
                 when (characteristicUUID) {
                     GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
+                        val flagField = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)
+
+                        val sequenceNumberField = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1)
 
                     }
                 }
@@ -144,18 +147,5 @@ class SugaIOTBluetoothLeService : Service() {
                  2. If it is glucose measurement characteristics, read the new value, and jump over to onCharacteristicRead
                    */
         }
-
-        override fun onCharacteristicRead(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?,
-            status: Int
-        ) {
-            /* TODO, 1. Decode the scale used in measuring the glucose level,
-                   2. Get and decode the value of the patients blood glucose level
-                   3. Report the value to the other components of the app using the broadcast receiver
-
-             */
-        }
-
     }
 }
