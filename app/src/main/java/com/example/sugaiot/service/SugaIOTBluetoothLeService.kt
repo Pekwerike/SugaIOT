@@ -1,8 +1,7 @@
 package com.example.sugaiot.service
 
 import android.app.Service
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
+import android.bluetooth.*
 import android.bluetooth.le.BluetoothLeScanner
 import android.content.Context
 import android.content.Intent
@@ -29,6 +28,28 @@ class SugaIOTBluetoothLeService : Service() {
     inner class SugaIOTBluetoothLeServiceBinder : Binder() {
         fun getServiceInstance(): SugaIOTBluetoothLeService {
             return this@SugaIOTBluetoothLeService
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_NOT_STICKY
+    }
+
+    fun connectToBluetoothLeDevice(device: BluetoothDevice) {
+        device.connectGatt(this, true, bluetoothGattContext)
+    }
+
+    private val bluetoothGattContext = object : BluetoothGattCallback() {
+        override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+            when (status) {
+                BluetoothGatt.STATE_CONNECTED -> {
+
+                }
+
+                BluetoothGatt.STATE_DISCONNECTED -> {
+
+                }
+            }
         }
     }
 }

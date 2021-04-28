@@ -26,7 +26,12 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
 
     fun addBluetoothLeScanResult(scanResult: ScanResult) {
         _bluetoothLeScanResultMap.value = _bluetoothLeScanResultMap.value?.apply {
-            put(scanResult.device.address, scanResult)
+            /*val searchKey = scanResult.scanRecord?.bytes.contentToString()
+            val oldEntry = get(searchKey)
+            oldEntry?.let {
+                put(searchKey, scanResult)
+            }*/
+            put(scanResult.scanRecord?.bytes.contentToString(), scanResult)
         }
     }
 }

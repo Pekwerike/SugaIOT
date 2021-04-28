@@ -1,6 +1,7 @@
 package com.example.sugaiot
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.Context
@@ -47,41 +48,28 @@ class MainActivity : AppCompatActivity() {
             })
         activityMainBinding.apply {
             startSearchButton.setOnClickListener {
-                scanForDevices()
+                if (mainActivityViewModel.isScanning.value!!) {
+                    stopScanForLeDevices()
+                } else {
+                    scanForLeDevices()
+                }
             }
             discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
         }
         observeMainActivityViewModelLiveData()
     }
 
-    private fun observeMainActivityViewModelLiveData() {
-        mainActivityViewModel.bluetoothLeScanResultMap.observe(this) {
-            it?.let {
-                bluetoothDevicesRecyclerViewAdapter.submitList(
-                    it.map { entry ->
-                        entry.value.device
-                    }.toMutableList()
-                )
-            }
-        }
+    private fun connectToBlutoothLeDevice(device: BluetoothDevice){
 
-        mainActivityViewModel.isScanning.observe(this) {
-            it?.let {
-                activityMainBinding.startSearchButtonLabel = if (it) {
-                    getString(R.string.stop_search_label)
-                } else {
-                    getString(R.string.start_search_label)
-                }
-            }
-        }
     }
 
     private fun stopScanForLeDevices() {
         if (!mainActivityViewModel.isScanning.value!!) return
         bluetoothLeScanner?.stopScan(bluetoothLeScanCallback)
+        mainActivityViewModel.scanStateUpdated()
     }
 
-    private fun scanForDevices() {
+    private fun scanForLeDevices() {
         if (bluetoothAdapter == null) return
         if (!hasAccessToDeviceFineLocation()) {
             requestAccessToDeviceFineLocation()
@@ -92,7 +80,6 @@ class MainActivity : AppCompatActivity() {
             mainActivityViewModel.scanStateUpdated()
             // todo, Improve the scan process to look for only devices with the glucose service uuid
             CoroutineScope(Dispatchers.Main).launch {
-
                 bluetoothLeScanner?.startScan(bluetoothLeScanCallback)
                 delay(60000) // stop scan after 1 minute
                 bluetoothLeScanner?.stopScan(bluetoothLeScanCallback)
@@ -119,6 +106,28 @@ class MainActivity : AppCompatActivity() {
             results?.let {
                 it.forEach { scanResult ->
                     mainActivityViewModel.addBluetoothLeScanResult(scanResult = scanResult)
+                }
+            }
+        }
+    }
+
+    private fun observeMainActivityViewModelLiveData() {
+        mainActivityViewModel.bluetoothLeScanResultMap.observe(this) {
+            it?.let {
+                bluetoothDevicesRecyclerViewAdapter.submitList(
+                    it.map { entry ->
+                        entry.value.device
+                    }.toMutableList()
+                )
+            }
+        }
+
+        mainActivityViewModel.isScanning.observe(this) {
+            it?.let {
+                activityMainBinding.startSearchButtonLabel = if (it) {
+                    getString(R.string.stop_search_label)
+                } else {
+                    getString(R.string.start_search_label)
                 }
             }
         }
@@ -152,7 +161,7 @@ class MainActivity : AppCompatActivity() {
             && (requestCode == ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE)
         ) {
             if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                scanForDevices()
+                scanForLeDevices()
             } else {
                 // Handle situation when user denies app permission request
             }
