@@ -105,11 +105,31 @@ class SugaIOTBluetoothLeService : Service() {
                     GlucoseProfileConfiguration
                         .uuidLookUp[GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID]
                 )?.let {
-                    it.getDescriptor(GlucoseProfileConfiguration
-                        .uuidLookUp[GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR]).apply {
-                            value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+                    it.getDescriptor(
+                        GlucoseProfileConfiguration
+                            .uuidLookUp[GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR]
+                    ).apply {
+                        value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
                     }
+                    // Opcode byte, Operand byte
+                    // 0x01 as Opcode means report all record
+                    // 0x01 as Operand means All record
+                    it.value = ByteArray(2)
+                    it.setValue(
+                        GlucoseProfileConfiguration.OP_CODE_REPORT_STORED_RECORDS,
+                        BluetoothGattCharacteristic.FORMAT_UINT8,
+                        0
+                    )
+                    it.setValue(
+                        GlucoseProfileConfiguration.OPERATOR_ALL_RECORDS,
+                        BluetoothGattCharacteristic.FORMAT_UINT8,
+                        1
+                    )
+                    bluetoothGatt.writeCharacteristic(it)
                 }
+
+                // write to the record access control point to receive reports on patient glucose level
+
             }
         }
 
@@ -133,5 +153,6 @@ class SugaIOTBluetoothLeService : Service() {
 
              */
         }
+
     }
 }
