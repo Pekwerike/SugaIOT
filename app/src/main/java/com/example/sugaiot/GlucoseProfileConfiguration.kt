@@ -11,8 +11,10 @@ for GATT Service, GATT Unit, GATT Declaration, GATT Descriptor, GATT Characteris
 https://www.bluetooth.com/specifications/assigned-numbers/
 
 The UUID configurations below are those relevant for interacting with a Glucose profile in a
-Ble enabled glucose meter
-* */
+Ble enabled glucose meter.
+
+Additional reference on Glucose profile and Glucose service can be found at https://www.bluetooth.com/specifications/specs/
+*/
 object GlucoseProfileConfiguration {
 
     val GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID: UUID =
@@ -43,5 +45,10 @@ object GlucoseProfileConfiguration {
     const val OPERATOR_WITHING_RANGE = 4
     const val OPERATOR_FIRST_RECORD = 5
     const val OPERATOR_LAST_RECORD = 6
+
+    // Glucose measurement filter type
+    const val FILTER_TYPE_NULL = 0
+    const val FILTER_TYPE_SEQUENCE_NUMBER = 1
+    const val FILTER_TYPE_USER_FACING_TIME = 2
 
 }

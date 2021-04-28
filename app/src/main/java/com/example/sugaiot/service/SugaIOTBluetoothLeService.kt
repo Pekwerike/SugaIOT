@@ -99,11 +99,14 @@ class SugaIOTBluetoothLeService : Service() {
                 glucoseService.getCharacteristic(
                     GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID
                 )?.let {
+                    bluetoothGatt.setCharacteristicNotification(it, true)
                     it.getDescriptor(
                         GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR
                     ).apply {
                         value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
                     }
+
+                    // write to the RACP to send all reports on patient glucose level
                     // Opcode byte, Operand byte
                     // 0x01 as Opcode means report all record
                     // 0x01 as Operand means All record
@@ -118,10 +121,10 @@ class SugaIOTBluetoothLeService : Service() {
                         BluetoothGattCharacteristic.FORMAT_UINT8,
                         1
                     )
+
                     bluetoothGatt.writeCharacteristic(it)
                 }
 
-                // write to the record access control point to receive reports on patient glucose level
 
             }
         }
