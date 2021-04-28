@@ -6,10 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-@HiltAndroidApp
-class MainActivityViewModel : ViewModel() {
-
+@HiltViewModel
+class MainActivityViewModel @Inject constructor() : ViewModel() {
 
     // boolean that determines the ui state of the search button
     private val _isScanning: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
