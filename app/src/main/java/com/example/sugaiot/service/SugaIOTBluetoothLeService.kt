@@ -21,6 +21,8 @@ class SugaIOTBluetoothLeService : Service() {
     @Inject
     lateinit var bluetoothLeScanner: BluetoothLeScanner
 
+    private lateinit var bluetoothGatt: BluetoothGatt
+
     override fun onBind(intent: Intent): IBinder {
         return SugaIOTBluetoothLeServiceBinder()
     }
@@ -31,12 +33,9 @@ class SugaIOTBluetoothLeService : Service() {
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_NOT_STICKY
-    }
 
     fun connectToBluetoothLeDevice(device: BluetoothDevice) {
-        device.connectGatt(this, true, bluetoothGattContext)
+        bluetoothGatt = device.connectGatt(this, true, bluetoothGattContext)
     }
 
     private val bluetoothGattContext = object : BluetoothGattCallback() {

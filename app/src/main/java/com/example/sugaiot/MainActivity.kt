@@ -4,16 +4,20 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
+import android.content.ComponentName
 import android.content.Context
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
 import android.os.ParcelUuid
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.example.sugaiot.databinding.ActivityMainBinding
+import com.example.sugaiot.service.SugaIOTBluetoothLeService
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
 import com.example.sugaiot.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,9 +39,25 @@ class MainActivity : AppCompatActivity() {
     private val bluetoothLeScanner: BluetoothLeScanner? by lazy {
         bluetoothAdapter?.bluetoothLeScanner
     }
+
+    private var sugaIOTBluetoothLeService: SugaIOTBluetoothLeService? = null
+
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var bluetoothDevicesRecyclerViewAdapter: BluetoothDevicesRecyclerViewAdapter
+
+    // code to manager SugaIOTBluetoothLeService lifecycle
+    private val serviceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            sugaIOTBluetoothLeService = (service as SugaIOTBluetoothLeService.SugaIOTBluetoothLeServiceBinder)
+                .getServiceInstance()
+
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            sugaIOTBluetoothLeService = null
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         observeMainActivityViewModelLiveData()
     }
 
-    private fun connectToBlutoothLeDevice(device: BluetoothDevice){
+    private fun connectToBlutoothLeDevice(device: BluetoothDevice) {
 
     }
 
