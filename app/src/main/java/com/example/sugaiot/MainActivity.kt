@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var bluetoothDevicesRecyclerViewAdapter: BluetoothDevicesRecyclerViewAdapter
 
-    // code to manager SugaIOTBluetoothLeService lifecycle
+    // code to manage SugaIOTBluetoothLeService lifecycle
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             sugaIOTBluetoothLeService =
@@ -127,12 +127,6 @@ class MainActivity : AppCompatActivity() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             result?.let {
                 mainActivityViewModel.addBluetoothLeScanResult(scanResult = result)
-                AdvertiseData.Builder().addServiceData(
-                    ParcelUuid
-                        .fromString(
-                            UUID.nameUUIDFromBytes(result.scanRecord!!.bytes).toString()
-                        ), result.scanRecord?.bytes
-                ).setIncludeDeviceName(true).build().serviceData
             }
         }
 
