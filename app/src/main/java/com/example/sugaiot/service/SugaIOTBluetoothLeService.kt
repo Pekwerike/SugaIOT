@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.example.sugaiot.GlucoseProfileConfiguration
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -44,12 +46,29 @@ class SugaIOTBluetoothLeService : Service() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             when (status) {
                 BluetoothGatt.STATE_CONNECTED -> {
-
+                    // TODO Use local broadcast manager to tell the application that the peripheral has been connected to
+                    gatt?.discoverServices()
                 }
 
                 BluetoothGatt.STATE_DISCONNECTED -> {
+                    // TODO Use local broadcast manager to tell the application that the peripheral has been disconnected from
 
                 }
+            }
+        }
+
+        override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+            // get the glucose  service immediately
+            gatt?.let {
+                val glucoseService: BluetoothGattService =
+                    it.getService(UUID.fromString(GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID))
+                val glucoseMeasurementCharacteristics: BluetoothGattCharacteristic =
+                    glucoseService.getCharacteristic(
+                        UUID.fromString(
+                            GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID
+                        )
+                    )
+
             }
         }
     }
