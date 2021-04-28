@@ -61,21 +61,55 @@ class SugaIOTBluetoothLeService : Service() {
             // get the glucose  service immediately
             gatt?.let {
                 val glucoseService: BluetoothGattService =
-                    bluetoothGatt.getService(UUID.fromString(GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID))
-                val glucoseMeasurementCharacteristics: BluetoothGattCharacteristic =
-                    glucoseService.getCharacteristic(
-                        UUID.fromString(
-                            GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID
-                        )
+                    bluetoothGatt.getService(
+                        GlucoseProfileConfiguration
+                            .uuidLookUp[GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID]
                     )
-                bluetoothGatt.setCharacteristicNotification(glucoseMeasurementCharacteristics, true)
-                val glucoseMeasurementCharacteristicConfigDesc =
-                    glucoseMeasurementCharacteristics.getDescriptor(
-                        UUID.fromString(GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR)
-                    ).apply {
-                        value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+
+                // set characteristic notification for the glucose measurement characteristic
+                glucoseService.getCharacteristic(
+                    GlucoseProfileConfiguration
+                        .uuidLookUp[GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID]
+                )?.let {
+                    bluetoothGatt.setCharacteristicNotification(
+                        it,
+                        true
+                    )
+                    val glucoseMeasurementCharacteristicConfigDesc =
+                        it.getDescriptor(
+                            UUID.fromString(GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR)
+                        ).apply {
+                            value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        }
+                    bluetoothGatt.writeDescriptor(glucoseMeasurementCharacteristicConfigDesc)
+                }
+
+                // set characteristic notification for the glucose measurement context characteristic
+                glucoseService.getCharacteristic(
+                    GlucoseProfileConfiguration
+                        .uuidLookUp[GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CONTEXT_CHARACTERISTIC_UUID]
+                )?.let {
+                    bluetoothGatt.setCharacteristicNotification(it, true)
+                    val glucoseMeasurementContextCharacteristicConfigDesc =
+                        it.getDescriptor(
+                            GlucoseProfileConfiguration
+                                .uuidLookUp[GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR]
+                        ).apply {
+                            value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        }
+                    bluetoothGatt.writeDescriptor(glucoseMeasurementContextCharacteristicConfigDesc)
+                }
+
+                // set characteristic indication for the record access control point characteristic
+                glucoseService.getCharacteristic(
+                    GlucoseProfileConfiguration
+                        .uuidLookUp[GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID]
+                )?.let {
+                    it.getDescriptor(GlucoseProfileConfiguration
+                        .uuidLookUp[GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR]).apply {
+                            value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
                     }
-                bluetoothGatt.writeDescriptor(glucoseMeasurementCharacteristicConfigDesc)
+                }
             }
         }
 
