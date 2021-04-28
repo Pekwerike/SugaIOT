@@ -61,16 +61,43 @@ class SugaIOTBluetoothLeService : Service() {
             // get the glucose  service immediately
             gatt?.let {
                 val glucoseService: BluetoothGattService =
-                    it.getService(UUID.fromString(GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID))
+                    bluetoothGatt.getService(UUID.fromString(GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID))
                 val glucoseMeasurementCharacteristics: BluetoothGattCharacteristic =
                     glucoseService.getCharacteristic(
                         UUID.fromString(
                             GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID
                         )
                     )
-                it.setCharacteristicNotification(glucoseMeasurementCharacteristics, true)
-
+                bluetoothGatt.setCharacteristicNotification(glucoseMeasurementCharacteristics, true)
+                val glucoseMeasurementCharacteristicConfigDesc =
+                    glucoseMeasurementCharacteristics.getDescriptor(
+                        UUID.fromString(GlucoseProfileConfiguration.CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR)
+                    ).apply {
+                        value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                    }
+                bluetoothGatt.writeDescriptor(glucoseMeasurementCharacteristicConfigDesc)
             }
+        }
+
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?
+        ) {
+            /* TODO, 1. Check if the characteristics with new update is the Glucose measurement characteristic
+                 2. If it is glucose measurement characteristics, read the new value, and jump over to onCharacteristicRead
+                   */
+        }
+
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?,
+            status: Int
+        ) {
+            /* TODO, 1. Decode the scale used in measuring the glucose level,
+                   2. Get and decode the value of the patients blood glucose level
+                   3. Report the value to the other components of the app using the broadcast receiver
+
+             */
         }
     }
 }
