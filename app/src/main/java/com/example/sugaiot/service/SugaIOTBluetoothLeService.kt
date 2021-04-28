@@ -136,17 +136,64 @@ class SugaIOTBluetoothLeService : Service() {
                 val characteristicUUID = characteristic.uuid
                 when (characteristicUUID) {
                     GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
-                        val flagField = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)
+                        var offset: Int = 0
+                        val flag: Int =
+                            characteristic.getIntValue(
+                                BluetoothGattCharacteristic.FORMAT_UINT8,
+                                offset
+                            )
 
-                        val sequenceNumberField = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1)
+                        offset += 1 // offset is 1
 
-                        val baseTimeYear = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 2)
-                        val baseTimeMonth = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 4)
-                        val baseTimeDay = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 5)
-                        val baseTimeHours = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 6)
-                        val baseTimeMinutes = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 7)
-                        val baseTimeSeconds = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 8)
+                        val sequenceNumber: Int =
+                            characteristic.getIntValue(
+                                BluetoothGattCharacteristic.FORMAT_UINT16,
+                                offset
+                            )
+                        offset += 1 // offset is 2
 
+                        val baseTimeYear: Int =
+                            characteristic.getIntValue(
+                                BluetoothGattCharacteristic.FORMAT_UINT16,
+                                offset
+                            )
+                        offset += 2 // offset is 4
+
+                        val baseTimeMonth: Int =
+                            characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 4)
+                        val baseTimeDay: Int =
+                            characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 5)
+                        val baseTimeHours: Int =
+                            characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 6)
+                        val baseTimeMinutes: Int =
+                            characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 7)
+                        val baseTimeSeconds: Int =
+                            characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 8)
+                        offset += 5 // offset is 9
+
+                        val timeOffSet: Int = if (flag and (1 shl 0) > 0) {
+                            offset += 2 // offset is 11
+                            characteristic.getIntValue(
+                                BluetoothGattCharacteristic.FORMAT_UINT16,
+                                offset
+                            )
+                        } else {
+                            0
+                        }
+
+                        if (flag and (1 shl 1) > 0) { // glucose concentration field exists
+                            if (flag and (1 shl 2) > 0) { // glucose concentration unit of measurement is mol/L
+
+                            }else { // glucose concentration unit of measurement is kg/L
+
+                            }
+
+                        }
+                        val glucoseConcentrationUnit = if ()
+                        val glucoseConcentrationInKgPerLit: Float = if (flag and (1 shl 1) > 0) {
+                            offset += 1 // offset is 12
+                            characteristic.getFloatValue()
+                        }
                     }
                 }
             }
