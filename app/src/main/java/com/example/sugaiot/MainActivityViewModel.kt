@@ -5,7 +5,9 @@ import android.util.ArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class MainActivityViewModel : ViewModel() {
 
 

@@ -17,6 +17,7 @@ import androidx.core.content.getSystemService
 import androidx.databinding.DataBindingUtil
 import com.example.sugaiot.databinding.ActivityMainBinding
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,7 +29,7 @@ import javax.inject.Inject
 
 const val ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE = 1010
 
-@Hilt
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
   /*  private val bluetoothManager: BluetoothManager by lazy {
         getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
