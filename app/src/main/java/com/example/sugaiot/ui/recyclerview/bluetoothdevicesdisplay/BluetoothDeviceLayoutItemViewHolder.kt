@@ -19,7 +19,8 @@ class BluetoothDeviceLayoutItemViewHolder(
         BluetoothDevicesRecyclerViewAdapter.BluetoothDeviceOnConnectClickListener
     ) {
         bluetoothDeviceLayoutItemBinding.apply {
-            deviceName = bluetoothDevice.name
+            deviceName = bluetoothDevice.name ?: "Unspecified"
+
             connectToBluetoothDeviceButton.setOnClickListener {
                 bluetoothDeviceOnConnectClickListener.onConnectClicked(
                     device = bluetoothDevice

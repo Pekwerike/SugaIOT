@@ -17,20 +17,12 @@ import javax.inject.Singleton
 @Module
 class BluetoothDIModule {
 
-    @Provides
-    @Singleton
-    fun getBluetoothManager(@ApplicationContext context: Context): BluetoothManager? {
-        val bluetoothManager: BluetoothManager by lazy {
-            context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        }
-        return bluetoothManager
-    }
 
     @Provides
     @Singleton
-    fun getBluetoothAdapter(bluetoothManager: BluetoothManager?): BluetoothAdapter? {
+    fun getBluetoothAdapter(@ApplicationContext context: Context): BluetoothAdapter? {
         val bluetoothAdapter: BluetoothAdapter? by lazy {
-            bluetoothManager?.adapter
+            (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         }
         return bluetoothAdapter
     }

@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingVertical="@dimen/standard_padding"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingVertical="@dimen/standard_padding">
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="0dp"
@@ -25,12 +25,13 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:id="@+id/connect_to_bluetooth_device_button"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/connect_to_bluetooth_device_button"
             android:layout_gravity="center"
             android:layout_margin="8dp"
-            android:text="@string/connect" />
+            android:text="@string/connect"
+            android:textAllCaps="false" />
     </LinearLayout>
 </layout>
