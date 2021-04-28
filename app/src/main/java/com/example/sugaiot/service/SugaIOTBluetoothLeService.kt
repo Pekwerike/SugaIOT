@@ -68,6 +68,7 @@ class SugaIOTBluetoothLeService : Service() {
                             GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID
                         )
                     )
+                it.setCharacteristicNotification(glucoseMeasurementCharacteristics, true)
 
             }
         }
