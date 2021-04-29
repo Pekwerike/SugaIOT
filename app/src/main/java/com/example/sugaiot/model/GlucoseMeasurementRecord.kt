@@ -1,11 +1,14 @@
 package com.example.sugaiot.model
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 /*
 GlucoseMeasurementRecord class is used to collect a single record of the Glucose Measurement
 Characteristic value from  the glucose sensor
 */
+@Parcelize
 data class GlucoseMeasurementRecord(
     var sequenceNumber: Int = 0,
     var calendar: GregorianCalendar = GregorianCalendar(Locale.UK),
@@ -18,12 +21,13 @@ data class GlucoseMeasurementRecord(
     var testBloodType: String = "Capillary Whole blood",
     var sampleLocation: String = "Earlobe",
     var sensorStatusAnnunciation: SensorStatusAnnunciation? = null
-) {
+) : Parcelable {
 
     enum class GlucoseConcentrationMeasurementUnit(value: String) {
         MOLES_PER_LITRE("mol/L"),
         KILOGRAM_PER_LITRE("kg/L")
     }
+
     init {
         testBloodType = when (type) {
             0 -> "Reserved for future use"

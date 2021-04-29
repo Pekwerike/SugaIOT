@@ -1,9 +1,13 @@
 package com.example.sugaiot.model
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
 /*
 SensorStatusAnnunciation provide additional information about the state of the
 glucose sensor at the time of the  glucose concentration value measurement
 */
+@Parcelize
 data class SensorStatusAnnunciation(
     var deviceBatteryLowAtTimeOfMeasurement: Boolean = false,
     var sensorMalfunctionAtTimeOfMeasurement: Boolean = false,
@@ -17,4 +21,4 @@ data class SensorStatusAnnunciation(
     var sensorReadInterruptedBecauseStripWasPulledTooSoon: Boolean = false,
     var generalDeviceFaultHasOccurredInSensor: Boolean = false,
     var timeFaultHasOccurredInTheSensor: Boolean = false,
-)
+) : Parcelable
