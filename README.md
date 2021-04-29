@@ -1,6 +1,6 @@
 # SugaIOT
 SugaIOT is an android application that synchronizes and interacts with a bluetooth low-energy enabled glucose meter. The application implements the 
-Bluetooth Special Interest Group (SIG) Glucose meter profile which enables a smartphone to connect and interact with a glucose sensor for consumer health applications. 
+[Bluetooth Special Interest Group (SIG)](https://www.bluetooth.com/) Glucose meter profile which enables a smartphone to connect and interact with a glucose sensor for consumer health applications. 
 
 ## Architecture 
 SugaIOT was designed with the Model-View-ViewModel (MVVM) architectural pattern which provides a clean archicture for the entire app by laying emphasis on SOLID principles, 
