@@ -7,7 +7,7 @@ SugaIOT was designed with the Model-View-ViewModel (MVVM) architectural pattern 
 Test Driven Developement (TDD) and Automated Dependency Injection. 
 
 ## Bluetooth SIG Glucose Profile Configuration 
-SugaIOT's configuration for the bluetooth low-energy glucose profile, services, characteristics and descriptors are managed in the GlucoseProfileConfiguration object which specifies the relevant:
+SugaIOT's configuration for the bluetooth low-energy glucose profile, services, characteristics and descriptors are managed in the (GlucoseProfileConfiguration)[https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/GlucoseProfileConfiguration.kt] object which specifies the relevant:
 - 16-bit Universally Unique Identifier (UUID) for glucose service's characteristics and descriptors.
 - Opcode, operators, filter types, and response codes for the glucose service record access control point characteristic procedures. 
 
@@ -16,7 +16,7 @@ All major interactions with the android BluetoothLe APIs are done within the [Su
 APIs irrespective of the current activity context. Once the application is started the MainActivity binds to this service and unbinds from the service when the activity is destroyed 
 but the service continues running in the foreground. 
 
-## Producers-Subcriber message transmission pattern with the BluetoothGattStateInformationReceiver local broadcast receiver
+## Data Model 
 
 
 
