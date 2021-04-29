@@ -4,7 +4,7 @@ SugaIOT is an android application that synchronizes and interacts with a bluetoo
 
 ## Architecture 
 SugaIOT was designed with the Model-View-ViewModel (MVVM) architectural pattern which provides a clean archicture for the entire app by laying emphasis on SOLID principles, 
-Test Driven Developement (TDD) and Automated Dependency Injection. 
+Test Driven Developement (TDD) and Automated Dependency Injection with Dagger Hilt. 
 
 ## Bluetooth SIG Glucose Profile Configuration 
 SugaIOT's configuration for the bluetooth low-energy glucose profile, services, characteristics and descriptors are managed in the [GlucoseProfileConfiguration](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/GlucoseProfileConfiguration.kt) object which specifies the relevant:
