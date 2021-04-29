@@ -13,8 +13,7 @@ SugaIOT's configuration for the bluetooth low-energy glucose profile, services, 
 
 ## Interaction with android bluetooth low-energy APIs 
 All major interactions with the android BluetoothLe APIs are done within the [SugaIOTBluetoothLeService](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/service/SugaIOTBluetoothLeService.kt). This class allows for a stable interaction with android bluetooth low-energy
-APIs irrespective of the MainActivity lifecycle. Once the application is started the MainActivity binds to this service and unbinds from the service when the activity is destroyed 
-but the service continues running in the foreground. 
+APIs irrespective of the MainActivity lifecycle. Once the application is started the MainActivity binds to SugaIOTBluetoothLeService and unbinds from the service when the activity is destroyed but the service continues running in the foreground. 
 
 ## Data Model 
 
