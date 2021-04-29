@@ -4,7 +4,7 @@ Bluetooth Special Interest Group (SIG) Glucose meter profile which enables a sma
 
 ## Architecture 
 SugaIOT was designed with the Model-View-ViewModel (MVVM) architectural pattern which provides a clean archicture for the entire app by laying emphasis on SOLID principles, 
-Test Driven Developement(TDD) and Automated Dependency Injection. 
+Test Driven Developement (TDD) and Automated Dependency Injection. 
 
 ## Bluetooth SIG Glucose Profile Configuration 
 SugaIOT's configuration of the bluetooth low-energy glucose profile, services, characteristics and descriptors are managed in the GlucoseProfileConfiguration object which specifies the relevant
