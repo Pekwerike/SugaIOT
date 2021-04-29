@@ -12,11 +12,12 @@ https://www.bluetooth.com/specifications/assigned-numbers/
 The UUID configurations below are those relevant for interacting with a Glucose profile in a
 Ble enabled glucose meter.
 
-Additional references on Glucose profile
+Additional references
 https://www.bluetooth.com/specifications/specs/
 https://www.bluetooth.com/wp-content/uploads/Sitecore-Media-Library/Gatt/Xml/Characteristics/org.bluetooth.characteristic.glucose_measurement.xml
 https://www.bluetooth.com/wp-content/uploads/Sitecore-Media-Library/Gatt/Xml/Characteristics/org.bluetooth.characteristic.date_time.xml
 https://www.bluetooth.com/wp-content/uploads/Sitecore-Media-Library/Gatt/Xml/Services/org.bluetooth.service.continuous_glucose_monitoring.xml
+https://github.com/oesmith/gatt-xml/blob/master/org.bluetooth.characteristic.record_access_control_point.xml
 */
 object GlucoseProfileConfiguration {
 
