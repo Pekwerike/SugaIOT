@@ -1,22 +1,22 @@
 package com.example.sugaiot.model
 
-import android.icu.util.Calendar
+import java.util.*
 
 /*
 GlucoseMeasurementRecord class is used to collect a single record of the Glucose Measurement
 Characteristic value from  the glucose sensor
 */
 data class GlucoseMeasurementRecord(
-    val sequenceNumber: Int,
-    val calendar: Calendar,
-    val timeOffset: Int,
-    val glucoseConcentrationMeasurementUnit: String,
-    val glucoseConcentrationValue: Float,
-    val type: Int,
-    val sampleLocationInteger: Int,
-    var testBloodType: String = "",
-    var sampleLocation: String = "",
-    val sensorStatusAnnunciation: SensorStatusAnnunciation
+    var sequenceNumber: Int = 0,
+    var calendar: GregorianCalendar = GregorianCalendar(Locale.UK),
+    var timeOffset: Int = 0,
+    var glucoseConcentrationMeasurementUnit: String = "mol/L",
+    var glucoseConcentrationValue: Float = 0f,
+    var type: Int = 0,
+    var sampleLocationInteger: Int = 0,
+    var testBloodType: String = "Capillary Whole blood",
+    var sampleLocation: String = "Earlobe",
+    var sensorStatusAnnunciation: SensorStatusAnnunciation? = null
 ) {
     init {
         testBloodType = when (type) {

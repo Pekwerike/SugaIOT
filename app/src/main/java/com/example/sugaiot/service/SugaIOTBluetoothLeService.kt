@@ -5,17 +5,16 @@ import android.bluetooth.*
 import android.bluetooth.le.BluetoothLeScanner
 import android.content.Context
 import android.content.Intent
-import android.icu.util.Calendar
-import android.icu.util.GregorianCalendar
 import android.os.Binder
 import android.os.IBinder
 import com.example.sugaiot.GlucoseProfileConfiguration
+import com.example.sugaiot.model.GlucoseMeasurementRecord
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class SugaIOTBluetoothLeService : Service() {
+    private var glucoseMeasurementRecord: GlucoseMeasurementRecord? = null
     private val sugaIOTBluetoothLeServiceBinder: IBinder =
         SugaIOTBluetoothLeServiceBinder()
 
@@ -135,9 +134,10 @@ class SugaIOTBluetoothLeService : Service() {
             characteristic: BluetoothGattCharacteristic?
         ) {
             characteristic?.let {
-                val characteristicUUID = characteristic.uuid
-                when (characteristicUUID) {
+                when (characteristic.uuid) {
                     GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
+                        glucoseMeasurementRecord = GlucoseMeasurementRecord()
+
                         var offset: Int = 0
                         val flag: Int =
                             characteristic.getIntValue(
