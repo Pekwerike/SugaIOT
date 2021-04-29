@@ -10,21 +10,20 @@ import android.os.IBinder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.sugaiot.GlucoseProfileConfiguration
 import com.example.sugaiot.broadcastreceiver.BluetoothGattStateInformationReceiver
+import com.example.sugaiot.glpmanager.SugaIOTGlucoseProfileManager
 import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.model.SensorStatusAnnunciation
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SugaIOTBluetoothLeService : Service() {
-    private var glucoseMeasurementRecord: GlucoseMeasurementRecord = GlucoseMeasurementRecord()
-    private val glucoseMeasurementRecordAvailableIntent = Intent(
-        BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE
-    )
-    private val localBroadcastManager: LocalBroadcastManager =
-        LocalBroadcastManager.getInstance(this)
     private val sugaIOTBluetoothLeServiceBinder: IBinder =
         SugaIOTBluetoothLeServiceBinder()
+
+    @Inject
+    lateinit var sugaIOTGlucoseProfileManager: SugaIOTGlucoseProfileManager
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
@@ -48,10 +47,10 @@ class SugaIOTBluetoothLeService : Service() {
 
 
     fun connectToBluetoothLeDevice(device: BluetoothDevice) {
-        bluetoothGatt = device.connectGatt(this, true, bluetoothGattContext)
+        bluetoothGatt = device.connectGatt(this, true, sugaIOTGlucoseProfileManager)
     }
 
-    private val bluetoothGattContext = object : BluetoothGattCallback() {
+    /*private val bluetoothGattContext = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             when (status) {
                 BluetoothGatt.STATE_CONNECTED -> {
@@ -189,7 +188,6 @@ class SugaIOTBluetoothLeService : Service() {
                             baseTimeSeconds
                         )
 
-
                         val timeOffset: Int = if (flag and (1 shl 0) > 0) {
                             offset += 2 // offset is 11
                             characteristic.getIntValue(
@@ -200,7 +198,6 @@ class SugaIOTBluetoothLeService : Service() {
                             0
                         }
                         glucoseMeasurementRecord.timeOffset = timeOffset
-
 
                         if (flag and (1 shl 1) > 0) { // glucose concentration field exists
                             glucoseMeasurementRecord.glucoseConcentrationValue =
@@ -229,7 +226,7 @@ class SugaIOTBluetoothLeService : Service() {
                             )
                             glucoseMeasurementRecord.type = typeAndSampleLocation shr 4
                             glucoseMeasurementRecord.sampleLocationInteger =
-                                typeAndSampleLocation and 15
+                                typeAndSampleLocation and 0x0F
                             offset += 1 // offset is 14
                         }
                         if (flag and (1 shl 2) > 0) { // Sensor Status Annunciation field is present
@@ -288,5 +285,5 @@ class SugaIOTBluetoothLeService : Service() {
                 }
             }
         }
-    }
+    }*/
 }

@@ -27,24 +27,7 @@ class LoadingButton @JvmOverloads constructor(
         isAntiAlias = true
         isDither = true
     }
-    private val circlePaint: Paint = Paint().apply {
-        style = Paint.Style.FILL
-        color = ContextCompat.getColor(context, R.color.white)
-        isAntiAlias = true
-        isDither = true
-    }
-    private val circlePaintTwo: Paint = Paint().apply {
-        style = Paint.Style.FILL
-        color = ContextCompat.getColor(context, R.color.white)
-        isAntiAlias = true
-        isDither = true
-    }
-    private val circlePaintThree: Paint = Paint().apply {
-        style = Paint.Style.FILL
-        color = ContextCompat.getColor(context, R.color.white)
-        isAntiAlias = true
-        isDither = true
-    }
+
 
     fun startLoading() {
         loading = true
@@ -62,78 +45,18 @@ class LoadingButton @JvmOverloads constructor(
         }
     }
 
-    private fun drawAnimatedThreeCircles(canvas: Canvas) {
-        canvas.drawRoundRect(buttonRect, width * 0.01f, height * 0.01f, buttonBackgroundPaint)
-        canvas.drawCircle(width * 0.5f, height * 0.5f, width * 0.02f,
-                circlePaintTwo)
 
-        canvas.drawCircle(width * 0.4f, height * 0.5f, width * 0.02f, circlePaint)
-        canvas.drawCircle(width * 0.6f, height * 0.5f, width * 0.02f, circlePaintThree)
-    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        mWidth = measuredWidth
-        mHeight = measuredHeight
+        mWidth = w
+        mHeight = h
         buttonRect = RectF(left.toFloat(), top.toFloat(), mWidth.toFloat(), mHeight.toFloat())
         val circlePaintOneAlphaAnimator: ValueAnimator = ValueAnimator.ofArgb(
                 ContextCompat.getColor(context, R.color.white), ContextCompat.getColor(context, android.R.color.transparent)).apply {
             duration = 400
             repeatCount = ValueAnimator.INFINITE
             repeatMode = ValueAnimator.RESTART
-        }
-
-        circlePaintOneAlphaAnimator.addUpdateListener {
-            circlePaint.color = it.animatedValue as Int
-            if (circlePaint.color == ContextCompat.getColor(context, R.color.white)) {
-                circlePaintOneAlphaAnimator.pause()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    circlePaintOneAlphaAnimator.resume()
-                }, 800)
-            }
-            invalidate()
-        }
-
-        val circlePaintTwoAlphaAnimator: ValueAnimator = ValueAnimator.ofArgb(ContextCompat.getColor(context, R.color.white),
-                ContextCompat.getColor(context, android.R.color.transparent)).apply {
-            duration = 400
-            startDelay = 400
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.RESTART
-
-        }
-        circlePaintTwoAlphaAnimator.addUpdateListener {
-            circlePaintTwo.color = it.animatedValue as Int
-            if (circlePaintTwo.color == ContextCompat.getColor(context, R.color.white)) {
-                circlePaintTwoAlphaAnimator.pause()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    circlePaintTwoAlphaAnimator.resume()
-                }, 800)
-            }
-            invalidate()
-        }
-        val circlePaintThreeAlphaAnimator: ValueAnimator = ValueAnimator.ofArgb(ContextCompat.getColor(context, R.color.white),
-                ContextCompat.getColor(context, android.R.color.transparent)).apply {
-            duration = 400
-            startDelay = 800
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.RESTART
-        }
-
-        circlePaintThreeAlphaAnimator.addUpdateListener {
-            circlePaintThree.color = it.animatedValue as Int
-            if (circlePaintThree.color == ContextCompat.getColor(context, R.color.white)) {
-                circlePaintThreeAlphaAnimator.pause()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    circlePaintThreeAlphaAnimator.resume()
-                }, 800)
-            }
-            invalidate()
-        }
-
-        AnimatorSet().apply {
-            playTogether(circlePaintOneAlphaAnimator, circlePaintTwoAlphaAnimator, circlePaintThreeAlphaAnimator)
-            start()
         }
     }
 }
