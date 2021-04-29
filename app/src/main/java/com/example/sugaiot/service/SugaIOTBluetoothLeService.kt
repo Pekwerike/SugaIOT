@@ -231,7 +231,7 @@ class SugaIOTBluetoothLeService : Service() {
                                 BluetoothGattCharacteristic.FORMAT_UINT16,
                                 offset
                             )
-                            offset += 1 // offset is 15 or 12 or 9
+                            offset += 2 // offset is 16 or 12 or 9
                             val sensorStatusAnnunciation = SensorStatusAnnunciation()
                             sensorStatusAnnunciation.deviceBatteryLowAtTimeOfMeasurement =
                                 sensorStatusAnnunciationValue and (1 shl 0) > 0
