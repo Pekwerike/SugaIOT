@@ -5,6 +5,8 @@ import android.bluetooth.*
 import android.bluetooth.le.BluetoothLeScanner
 import android.content.Context
 import android.content.Intent
+import android.icu.util.Calendar
+import android.icu.util.GregorianCalendar
 import android.os.Binder
 import android.os.IBinder
 import com.example.sugaiot.GlucoseProfileConfiguration
@@ -171,7 +173,8 @@ class SugaIOTBluetoothLeService : Service() {
                             characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 8)
                         offset += 5 // offset is 9
 
-                        val timeOffSet: Int = if (flag and (1 shl 0) > 0) {
+
+                        val timeOffset: Int = if (flag and (1 shl 0) > 0) {
                             offset += 2 // offset is 11
                             characteristic.getIntValue(
                                 BluetoothGattCharacteristic.FORMAT_UINT16,
@@ -183,28 +186,28 @@ class SugaIOTBluetoothLeService : Service() {
 
                         val glucoseConcentrationUnit: String
                         if (flag and (1 shl 1) > 0) { // glucose concentration field exists
-                            val glucoseConcentration = if (flag and (1 shl 2) > 0) {
+                            val glucoseConcentration: Float = if (flag and (1 shl 2) > 0) {
                                 // glucose concentration unit of measurement is mol/L
+                                glucoseConcentrationUnit = "mol/L"
                                 characteristic.getFloatValue(
                                     BluetoothGattCharacteristic.FORMAT_SFLOAT,
                                     offset
                                 )
-                                glucoseConcentrationUnit = "mol/L"
                             } else {
                                 // glucose concentration unit of measurement is kg/L
+                                glucoseConcentrationUnit = "kg/L"
                                 characteristic.getFloatValue(
                                     BluetoothGattCharacteristic.FORMAT_SFLOAT,
                                     offset
                                 )
-                                glucoseConcentrationUnit = "kg/L"
                             }
                             offset += 2 // offset is 13
                             val typeAndSampleLocation = characteristic.getIntValue(
                                 BluetoothGattCharacteristic.FORMAT_UINT8,
                                 offset
                             )
-                            val type = typeAndSampleLocation shr 4
-                            val sampleLocation = typeAndSampleLocation and 15
+                            val type: Int = typeAndSampleLocation shr 4
+                            val sampleLocation: Int = typeAndSampleLocation and 15
                             offset += 1 // offset is 14
                         }
 
