@@ -9,12 +9,13 @@ import android.os.Binder
 import android.os.IBinder
 import com.example.sugaiot.GlucoseProfileConfiguration
 import com.example.sugaiot.model.GlucoseMeasurementRecord
+import com.example.sugaiot.model.SensorStatusAnnunciation
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
 @AndroidEntryPoint
 class SugaIOTBluetoothLeService : Service() {
-    private var glucoseMeasurementRecord: GlucoseMeasurementRecord? = null
+    private var glucoseMeasurementRecord: GlucoseMeasurementRecord = GlucoseMeasurementRecord()
     private val sugaIOTBluetoothLeServiceBinder: IBinder =
         SugaIOTBluetoothLeServiceBinder()
 
@@ -147,7 +148,7 @@ class SugaIOTBluetoothLeService : Service() {
 
                         offset += 1 // offset is 1
 
-                        val sequenceNumber: Int =
+                        glucoseMeasurementRecord.sequenceNumber =
                             characteristic.getIntValue(
                                 BluetoothGattCharacteristic.FORMAT_UINT16,
                                 offset
@@ -172,6 +173,14 @@ class SugaIOTBluetoothLeService : Service() {
                         val baseTimeSeconds: Int =
                             characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 8)
                         offset += 5 // offset is 9
+                        glucoseMeasurementRecord.calendar = GregorianCalendar(
+                            baseTimeYear,
+                            baseTimeMonth,
+                            baseTimeDay,
+                            baseTimeHours,
+                            baseTimeMinutes,
+                            baseTimeSeconds
+                        )
 
 
                         val timeOffset: Int = if (flag and (1 shl 0) > 0) {
@@ -183,9 +192,11 @@ class SugaIOTBluetoothLeService : Service() {
                         } else {
                             0
                         }
+                        glucoseMeasurementRecord.timeOffset = timeOffset
 
-                        val glucoseConcentrationUnit: String
+
                         if (flag and (1 shl 1) > 0) { // glucose concentration field exists
+                            val glucoseConcentrationUnit: String
                             val glucoseConcentration: Float = if (flag and (1 shl 2) > 0) {
                                 // glucose concentration unit of measurement is mol/L
                                 glucoseConcentrationUnit = "mol/L"
@@ -201,16 +212,56 @@ class SugaIOTBluetoothLeService : Service() {
                                     offset
                                 )
                             }
+                            glucoseMeasurementRecord.glucoseConcentrationValue =
+                                glucoseConcentration
+                            glucoseMeasurementRecord.glucoseConcentrationMeasurementUnit =
+                                glucoseConcentrationUnit
                             offset += 2 // offset is 13
                             val typeAndSampleLocation = characteristic.getIntValue(
                                 BluetoothGattCharacteristic.FORMAT_UINT8,
                                 offset
                             )
-                            val type: Int = typeAndSampleLocation shr 4
-                            val sampleLocation: Int = typeAndSampleLocation and 15
+                            glucoseMeasurementRecord.type = typeAndSampleLocation shr 4
+                            glucoseMeasurementRecord.sampleLocationInteger =
+                                typeAndSampleLocation and 15
                             offset += 1 // offset is 14
                         }
+                        if (flag and (1 shl 2) > 0) { // Sensor Status Annunciation field is present
+                            val sensorStatusAnnunciationValue = characteristic.getIntValue(
+                                BluetoothGattCharacteristic.FORMAT_UINT16,
+                                offset
+                            )
+                            offset += 1 // offset is 15 or 12 or 9
+                            val sensorStatusAnnunciation = SensorStatusAnnunciation()
+                            sensorStatusAnnunciation.deviceBatteryLowAtTimeOfMeasurement =
+                                sensorStatusAnnunciationValue and (1 shl 0) > 0
+                            sensorStatusAnnunciation.sensorMalfunctionAtTimeOfMeasurement =
+                                sensorStatusAnnunciationValue and (1 shl 1) > 0
+                            sensorStatusAnnunciation.bloodSampleInsufficientAtTimeOfMeasurement =
+                                sensorStatusAnnunciationValue and (1 shl 2) > 0
+                            sensorStatusAnnunciation.stripInsertionError =
+                                sensorStatusAnnunciationValue and (1 shl 3) > 0
+                            sensorStatusAnnunciation.stripTypeIncorrectForDevice =
+                                sensorStatusAnnunciationValue and (1 shl 4) > 0
+                            sensorStatusAnnunciation.sensorResultHigherThanDeviceCanProcess =
+                                sensorStatusAnnunciationValue and (1 shl 5) > 0
+                            sensorStatusAnnunciation.sensorResultLowerThanTheDeviceCanProcess =
+                                sensorStatusAnnunciationValue and (1 shl 6) > 0
+                            sensorStatusAnnunciation.sensorTemperatureTooHighForValidTestResult =
+                                sensorStatusAnnunciationValue and (1 shl 7) > 0
+                            sensorStatusAnnunciation.sensorTemperatureTooLowForValidTestResult =
+                                sensorStatusAnnunciationValue and (1 shl 8) > 0
+                            sensorStatusAnnunciation.sensorReadInterruptedBecauseStripWasPulledTooSoon =
+                                sensorStatusAnnunciationValue and (1 shl 9) > 0
+                            sensorStatusAnnunciation.generalDeviceFaultHasOccurredInSensor =
+                                sensorStatusAnnunciationValue and (1 shl 10) > 0
+                            sensorStatusAnnunciation.timeFaultHasOccurredInTheSensor =
+                                sensorStatusAnnunciationValue and (1 shl 11) > 0
 
+                            glucoseMeasurementRecord.sensorStatusAnnunciation =
+                                sensorStatusAnnunciation
+
+                        }
                     }
                 }
             }
