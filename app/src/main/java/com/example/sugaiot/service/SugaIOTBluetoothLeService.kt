@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.sugaiot.GlucoseProfileConfiguration
 import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.model.SensorStatusAnnunciation
@@ -16,6 +17,7 @@ import java.util.*
 @AndroidEntryPoint
 class SugaIOTBluetoothLeService : Service() {
     private var glucoseMeasurementRecord: GlucoseMeasurementRecord = GlucoseMeasurementRecord()
+    private val localBroadcastManager: LocalBroadcastManager = LocalBroadcastManager.getInstance(this)
     private val sugaIOTBluetoothLeServiceBinder: IBinder =
         SugaIOTBluetoothLeServiceBinder()
 

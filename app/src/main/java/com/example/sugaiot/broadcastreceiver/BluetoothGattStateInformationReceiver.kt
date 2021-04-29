@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
+import com.example.sugaiot.model.GlucoseMeasurementRecord
 
 /*
 BluetoothGattStateInformationReceiver collects and distribute important information about the state
@@ -12,16 +13,48 @@ More specifically this class receives updates from the SugaIOTBluetoothLeService
 information to any other android component that registers for the broadcast
 */
 
-class BluetoothGattStateInformationReceiver : BroadcastReceiver() {
+class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInformationCallback: BluetoothGattStateInformationCallback) :
+    BroadcastReceiver() {
+
+    interface BluetoothGattStateInformationCallback {
+        fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord)
+    }
+
     companion object {
-        const val BLUETOOTH_LE_GATT_CALLBACK_ACTION =
-            "com.pekwerike.sugaiot.bluetoothLeGattCallbackAction"
-        const val BLUETOOTH_LE_GATT_CONNECTION_CHANGED =
-            "com.pekwerike.sugaiot.bluetoothLeGattCallbackConnectionChanged"
+        const val BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE =
+            "com.pekwerike.sugaiot.bluetoothLeGattCallbackConnectedToDevice"
+        const val BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE =
+            "com.pekwerike.sugaiot.bluetoothLeGattCallbackDisconnectedFromDevice"
+        const val BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE =
+            "com.pekwerike.sugaiot.bluetoothLeGattCallbackNewGlucoseRecordAvailable"
+        const val BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA =
+            "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementRecordExtra"
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        intent?.let {
+            when (intent.action) {
+                BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE -> {
 
+                }
+                BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE -> {
+
+                }
+                BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE -> {
+                    intent.getParcelableExtra<GlucoseMeasurementRecord>(
+                        BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA
+                    )?.let { glucoseMeasurementRecord ->
+                        // send the new glucoseMeasurementRecord to the main activity to display it to the user
+                        bluetoothGattStateInformationCallback.glucoseMeasurementRecordAvailable(
+                            glucoseMeasurementRecord
+                        )
+                    }
+                }
+                else -> {
+
+                }
+            }
+        }
     }
 
 }
