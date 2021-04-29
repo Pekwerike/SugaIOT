@@ -9,6 +9,7 @@ import android.os.Binder
 import android.os.IBinder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.sugaiot.GlucoseProfileConfiguration
+import com.example.sugaiot.broadcastreceiver.BluetoothGattStateInformationReceiver
 import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.model.SensorStatusAnnunciation
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,7 +18,11 @@ import java.util.*
 @AndroidEntryPoint
 class SugaIOTBluetoothLeService : Service() {
     private var glucoseMeasurementRecord: GlucoseMeasurementRecord = GlucoseMeasurementRecord()
-    private val localBroadcastManager: LocalBroadcastManager = LocalBroadcastManager.getInstance(this)
+    private val glucoseMeasurementRecordAvailableIntent = Intent(
+        BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE
+    )
+    private val localBroadcastManager: LocalBroadcastManager =
+        LocalBroadcastManager.getInstance(this)
     private val sugaIOTBluetoothLeServiceBinder: IBinder =
         SugaIOTBluetoothLeServiceBinder()
 
@@ -198,23 +203,24 @@ class SugaIOTBluetoothLeService : Service() {
 
 
                         if (flag and (1 shl 1) > 0) { // glucose concentration field exists
-                            glucoseMeasurementRecord.glucoseConcentrationValue = if (flag and (1 shl 2) > 0) {
-                                // glucose concentration unit of measurement is mol/L
-                                glucoseMeasurementRecord.glucoseConcentrationMeasurementUnit =
-                                    GlucoseMeasurementRecord.GlucoseConcentrationMeasurementUnit.MOLES_PER_LITRE
-                                characteristic.getFloatValue(
-                                    BluetoothGattCharacteristic.FORMAT_SFLOAT,
-                                    offset
-                                )
-                            } else {
-                                // glucose concentration unit of measurement is kg/L
-                                glucoseMeasurementRecord.glucoseConcentrationMeasurementUnit =
-                                    GlucoseMeasurementRecord.GlucoseConcentrationMeasurementUnit.KILOGRAM_PER_LITRE
-                                characteristic.getFloatValue(
-                                    BluetoothGattCharacteristic.FORMAT_SFLOAT,
-                                    offset
-                                )
-                            }
+                            glucoseMeasurementRecord.glucoseConcentrationValue =
+                                if (flag and (1 shl 2) > 0) {
+                                    // glucose concentration unit of measurement is mol/L
+                                    glucoseMeasurementRecord.glucoseConcentrationMeasurementUnit =
+                                        GlucoseMeasurementRecord.GlucoseConcentrationMeasurementUnit.MOLES_PER_LITRE
+                                    characteristic.getFloatValue(
+                                        BluetoothGattCharacteristic.FORMAT_SFLOAT,
+                                        offset
+                                    )
+                                } else {
+                                    // glucose concentration unit of measurement is kg/L
+                                    glucoseMeasurementRecord.glucoseConcentrationMeasurementUnit =
+                                        GlucoseMeasurementRecord.GlucoseConcentrationMeasurementUnit.KILOGRAM_PER_LITRE
+                                    characteristic.getFloatValue(
+                                        BluetoothGattCharacteristic.FORMAT_SFLOAT,
+                                        offset
+                                    )
+                                }
 
                             offset += 2 // offset is 13
                             val typeAndSampleLocation = characteristic.getIntValue(
@@ -262,6 +268,12 @@ class SugaIOTBluetoothLeService : Service() {
                                 sensorStatusAnnunciation
 
                         }
+                        localBroadcastManager.sendBroadcast(glucoseMeasurementRecordAvailableIntent.apply {
+                            putExtra(
+                                BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA,
+                                glucoseMeasurementRecord
+                            )
+                        })
                     }
 
                     GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CONTEXT_CHARACTERISTIC_UUID -> {
@@ -269,6 +281,9 @@ class SugaIOTBluetoothLeService : Service() {
                     }
                     GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID -> {
                         // Todo, get characteristic value of the record access control point
+                    }
+                    else -> {
+
                     }
                 }
             }
