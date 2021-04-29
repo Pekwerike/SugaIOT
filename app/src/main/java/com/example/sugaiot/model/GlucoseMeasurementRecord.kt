@@ -10,7 +10,8 @@ data class GlucoseMeasurementRecord(
     var sequenceNumber: Int = 0,
     var calendar: GregorianCalendar = GregorianCalendar(Locale.UK),
     var timeOffset: Int = 0,
-    var glucoseConcentrationMeasurementUnit: String = "mol/L",
+    var glucoseConcentrationMeasurementUnit: GlucoseConcentrationMeasurementUnit =
+        GlucoseConcentrationMeasurementUnit.MOLES_PER_LITRE,
     var glucoseConcentrationValue: Float = 0f,
     var type: Int = 0,
     var sampleLocationInteger: Int = 0,
@@ -18,6 +19,11 @@ data class GlucoseMeasurementRecord(
     var sampleLocation: String = "Earlobe",
     var sensorStatusAnnunciation: SensorStatusAnnunciation? = null
 ) {
+
+    enum class GlucoseConcentrationMeasurementUnit(value: String) {
+        MOLES_PER_LITRE("mol/L"),
+        KILOGRAM_PER_LITRE("kg/L")
+    }
     init {
         testBloodType = when (type) {
             0 -> "Reserved for future use"
