@@ -1,11 +1,14 @@
 package com.example.sugaiot
 
+import android.app.Activity
+import android.app.Instrumentation
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.*
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
@@ -21,6 +24,11 @@ import com.example.sugaiot.notification.NotificationUtils
 import com.example.sugaiot.service.SugaIOTBluetoothLeService
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
 import com.example.sugaiot.viewmodel.MainActivityViewModel
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 if (mainActivityViewModel.isScanning.value!!) {
                     stopScanForLeDevices()
                 } else {
-                    scanForLeDevices()
+                    turnOnDeviceLocation()
                 }
             }
             discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
@@ -138,11 +146,58 @@ class MainActivity : AppCompatActivity() {
         mainActivityViewModel.scanStateUpdated()
     }
 
-    private fun turnOnDeviceLocation(){
-        val locationSettingsRequestBuilder = LocationSettingRequest
+    private fun turnOnDeviceLocation() {
+
+        val locationSettingsRequestBuilder = LocationSettingsRequest.Builder().apply {
+            addLocationRequest(LocationRequest.create().apply {
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                interval = 30 * 1000;
+                fastestInterval = 5 * 1000;
+            })
+            setAlwaysShow(true)
+            setNeedBle(true)
+        }.build()
+
+        LocationServices.getSettingsClient(this).apply {
+            checkLocationSettings(locationSettingsRequestBuilder).addOnCompleteListener { p0 ->
+                try {
+                    val response: LocationSettingsResponse =
+                        p0.getResult(ApiException::class.java)
+                    scanForLeDevices()
+                    // All location settings are satisfied. The client can initialize location
+                    // requests here.
+                } catch (apiException: ApiException) {
+                    when (apiException.statusCode) {
+                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+                            val resolvableException = apiException as ResolvableApiException
+                            resolvableException.startResolutionForResult(
+                                this@MainActivity,
+                                1010
+                            )
+                        }
+                        LocationSettingsStatusCodes.SUCCESS -> {
+                            scanForLeDevices()
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when(requestCode){
+            1010 -> {
+                if(resultCode == Activity.RESULT_OK){
+                    scanForLeDevices()
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     private fun scanForLeDevices() {
         if (bluetoothAdapter == null) return
+
         if (!hasAccessToDeviceFineLocation()) {
             requestAccessToDeviceFineLocation()
             return
@@ -232,7 +287,7 @@ class MainActivity : AppCompatActivity() {
             && (requestCode == ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE)
         ) {
             if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                scanForLeDevices()
+                 turnOnDeviceLocation()
             } else {
                 // Handle situation when user denies app permission request
             }
