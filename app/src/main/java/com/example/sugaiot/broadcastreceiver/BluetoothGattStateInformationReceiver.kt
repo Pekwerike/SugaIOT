@@ -18,6 +18,8 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
 
     interface BluetoothGattStateInformationCallback {
         fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord)
+        fun connectedToAGattServer()
+        fun disconnectedFromAGattServer()
     }
 
     companion object {
@@ -35,10 +37,10 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
         intent?.let {
             when (intent.action) {
                 BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE -> {
-
+                    bluetoothGattStateInformationCallback.connectedToAGattServer()
                 }
                 BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE -> {
-
+                    bluetoothGattStateInformationCallback.disconnectedFromAGattServer()
                 }
                 BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE -> {
                     intent.getParcelableExtra<GlucoseMeasurementRecord>(
