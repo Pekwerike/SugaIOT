@@ -1,7 +1,7 @@
 # SugaIOT
 SugaIOT is an android application that synchronizes and interacts with a Bluetooth low-energy enabled glucose meter. The application implements the 
 [Bluetooth Special Interest Group (SIG)](https://www.bluetooth.com/) Glucose meter profile enables a smartphone to connect and interact with a glucose sensor for consumer health applications. 
-> SugaIOT is not yet compatible with BluetoothLe glucose meters that implement the Bluetooth SIG continuous glucose measurement profile.
+> SugaIOT is not yet compatible with glucose meters that implement the Bluetooth SIG Continuous Glucose Measurement (CGM) profile and SugaIOT application cannot run on an android emulator since it doesn't have a Bluetooth Adapteer.
 
 ## Architecture 
 SugaIOT was designed with the Model-View-ViewModel (MVVM) architectural pattern which provides a clean architecture for the entire app by laying emphasis on SOLID principles, 
@@ -17,6 +17,14 @@ All major interactions with the android BluetoothLe APIs are done within the [Su
 
 ## Data Representation
 Each glucose measurement record for a patient is read from the glucose sensor Record Access Control Point (RACP) and parsed by the SugaIOTGlucoseProfileManager into a [GlucoseMeasurementRecord](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/model/GlucoseMeasurementRecord.kt) object. Glucose measurement record data parsing and decrypting are done by following the Bluetooth SIG specifications for the glucose service.
+
+## Permission Requirements 
+SugaIOT requires the following runtime permission from the user 
+1. Access to turn on the device GPS 
+2. Access to device turn on the device bluetooth
+
+## Opensource Libraries 
+
 
 
 
