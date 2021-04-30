@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import com.example.sugaiot.broadcastreceiver.BluetoothGattStateInformationReceiver
 import com.example.sugaiot.databinding.ActivityMainBinding
 import com.example.sugaiot.model.GlucoseMeasurementRecord
+import com.example.sugaiot.notification.NotificationUtils
 import com.example.sugaiot.service.SugaIOTBluetoothLeService
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
 import com.example.sugaiot.viewmodel.MainActivityViewModel
@@ -26,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
 
 const val ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE = 1010
@@ -46,6 +48,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var bluetoothDevicesRecyclerViewAdapter: BluetoothDevicesRecyclerViewAdapter
 
+    @Inject
+    lateinit var notificationUtils: NotificationUtils
+
     private val bluetoothGattStateInformationReceiver = BluetoothGattStateInformationReceiver(
         bluetoothGattStateInformationCallback =
         object : BluetoothGattStateInformationReceiver.BluetoothGattStateInformationCallback {
@@ -53,14 +58,13 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-            override fun connectedToAGattServer() {
+            override fun connectedToAGattServer(connectedDevice: BluetoothDevice) {
                 displayToast("Connected to a Gatt Server")
             }
 
             override fun disconnectedFromAGattServer() {
                 displayToast("Disconnected from a Gatt Server")
             }
-
         }
     )
 
@@ -96,11 +100,11 @@ class MainActivity : AppCompatActivity() {
             }
             discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
         }
-
+        // create notification channel
+        notificationUtils.createGlucoseSensorCommunicationChannel()
         observeMainActivityViewModelLiveData()
-        //start and bind to SugaIOTBluetoothService when ever on create is called
+        // bind to SugaIOTBluetoothService when ever on create is called
         Intent(this, SugaIOTBluetoothLeService::class.java).also { intent ->
-            startService(intent)
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
     }
@@ -115,13 +119,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun unregisterBluetoothGattStateInformationReceiver(){
+    private fun unregisterBluetoothGattStateInformationReceiver() {
         unregisterReceiver(bluetoothGattStateInformationReceiver)
     }
 
     private fun connectToBluetoothLeDevice(device: BluetoothDevice) {
         // onConnect to device, put the SugaIOTBluetoothLeService in the foreground
-        sugaIOTBluetoothLeService?.connectToBluetoothLeDevice(device)
+        Intent(this, SugaIOTBluetoothLeService::class.java).also { intent ->
+            intent.putExtra(SugaIOTBluetoothLeService.DEVICE_TO_CONNECT_EXTRA, device)
+            startService(intent)
+        }
+
     }
 
     private fun stopScanForLeDevices() {

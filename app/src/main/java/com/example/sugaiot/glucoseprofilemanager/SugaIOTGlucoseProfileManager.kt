@@ -26,11 +26,17 @@ class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext priva
         when (status) {
             BluetoothGatt.STATE_CONNECTED -> {
                 // TODO Use local broadcast manager to tell the application that the peripheral has been connected to
-                gatt?.discoverServices()
-                bluetoothGattStateIntent.apply {
-                    action =
-                        BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE
-                    localBroadcastManager.sendBroadcast(this)
+                gatt?.let {
+                    gatt.discoverServices()
+                    bluetoothGattStateIntent.apply {
+                        action =
+                            BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE
+                        putExtra(
+                            BluetoothGattStateInformationReceiver.DEVICE_CONNECTED_TO_EXTRA,
+                            gatt.device
+                        )
+                        localBroadcastManager.sendBroadcast(this)
+                    }
                 }
             }
 

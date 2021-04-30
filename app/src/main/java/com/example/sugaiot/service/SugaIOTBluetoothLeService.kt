@@ -7,25 +7,29 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.example.sugaiot.R
 import com.example.sugaiot.glucoseprofilemanager.SugaIOTGlucoseProfileManager
+import com.example.sugaiot.notification.NotificationUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SugaIOTBluetoothLeService : Service() {
+    companion object {
+        const val DEVICE_TO_CONNECT_EXTRA = "DeviceToConnectToExtra"
+    }
+
     private val sugaIOTBluetoothLeServiceBinder: IBinder =
         SugaIOTBluetoothLeServiceBinder()
 
     @Inject
     lateinit var sugaIOTGlucoseProfileManager: SugaIOTGlucoseProfileManager
 
+    @Inject
+    lateinit var notificationUtils: NotificationUtils
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
-    }
-
-    private val bluetoothLeScanner: BluetoothLeScanner? by lazy {
-        bluetoothAdapter?.bluetoothLeScanner
     }
 
     private lateinit var bluetoothGatt: BluetoothGatt
@@ -34,15 +38,25 @@ class SugaIOTBluetoothLeService : Service() {
         return sugaIOTBluetoothLeServiceBinder
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startForeground(
+            1010,
+            notificationUtils.configureGlucoseSensorCommunicationNotification()
+        )
+        intent?.let {
+            val device = intent.getParcelableExtra<BluetoothDevice>(DEVICE_TO_CONNECT_EXTRA)!!
+            connectToBluetoothLeDevice(device)
+        }
+        return START_NOT_STICKY
+    }
+
     inner class SugaIOTBluetoothLeServiceBinder : Binder() {
         fun getServiceInstance(): SugaIOTBluetoothLeService {
             return this@SugaIOTBluetoothLeService
         }
     }
 
-
-    fun connectToBluetoothLeDevice(device: BluetoothDevice) {
+    private fun connectToBluetoothLeDevice(device: BluetoothDevice) {
         bluetoothGatt = device.connectGatt(this, true, sugaIOTGlucoseProfileManager)
     }
-
 }

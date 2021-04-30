@@ -24,7 +24,7 @@ class NotificationUtils @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    fun createCommunicatingWithGlucoseSensorNotificationChannel() {
+    fun createGlucoseSensorCommunicationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val glucoseSensorNotificationChannel = NotificationChannel(
                 context.getString(R.string.communicating_with_glucose_sensor_notification_id),
@@ -40,7 +40,7 @@ class NotificationUtils @Inject constructor(
     }
 
 
-    fun configureCommunicationWithGlucoseSensorNotification(): Notification {
+    fun configureGlucoseSensorCommunicationNotification(): Notification {
         val openMainActivityPendingIntent: PendingIntent =
             Intent(context, MainActivity::class.java).let {
                 it.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP

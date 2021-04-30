@@ -1,5 +1,6 @@
 package com.example.sugaiot.broadcastreceiver
 
+import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -18,7 +19,7 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
 
     interface BluetoothGattStateInformationCallback {
         fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord)
-        fun connectedToAGattServer()
+        fun connectedToAGattServer(connectedDevice : BluetoothDevice)
         fun disconnectedFromAGattServer()
     }
 
@@ -31,13 +32,17 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
             "com.pekwerike.sugaiot.bluetoothLeGattCallbackNewGlucoseRecordAvailable"
         const val BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA =
             "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementRecordExtra"
+        const val DEVICE_CONNECTED_TO_EXTRA =
+            "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementDeviceConnectedToExtra"
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         intent?.let {
             when (intent.action) {
                 BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE -> {
-                    bluetoothGattStateInformationCallback.connectedToAGattServer()
+                    val connectedDevice =
+                        intent.getParcelableExtra<BluetoothDevice>(DEVICE_CONNECTED_TO_EXTRA)!!
+                    bluetoothGattStateInformationCallback.connectedToAGattServer(connectedDevice = connectedDevice)
                 }
                 BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE -> {
                     bluetoothGattStateInformationCallback.disconnectedFromAGattServer()

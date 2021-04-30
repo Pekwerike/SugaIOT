@@ -7,4 +7,5 @@
     <string name="communicating_with_glucose_sensor_notification_channel_name">Glucose sensor communication notification channel</string>
     <string name="communicating_with_glucose_sensor_notification_title">Communicating with Glucose Sensor</string>
     <string name="communicating_with_glucose_sensor_notification_text">SugaIOT has started reading data from the glucose meter</string>
+    <string name="device_details">Device details</string>
 </resources>

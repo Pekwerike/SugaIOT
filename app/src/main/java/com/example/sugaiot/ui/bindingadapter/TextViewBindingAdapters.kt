@@ -1,5 +1,6 @@
 package com.example.sugaiot.ui.bindingadapter
 
+import android.bluetooth.BluetoothDevice
 import android.graphics.Typeface.BOLD
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -41,4 +42,22 @@ fun TextView.setCanConnectText(connectionStatus: String) {
         text = connectionStatus
         setTextColor(ContextCompat.getColor(rootView.context, android.R.color.holo_red_light))
     }
+}
+
+@BindingAdapter("setDeviceDetails")
+fun TextView.setConnectedDeviceDetails(connectedDevice : BluetoothDevice){
+    var accumulatedLength : Int = 0
+    val spannedStringBuilder = SpannableStringBuilder().apply {
+        append("Name: ") // length 4
+        accumulatedLength = "Name: ".length
+        append("${connectedDevice.name}\n").apply {
+            setSpan(StyleSpan(BOLD), accumulatedLength, connectedDevice.name.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+        }
+        accumulatedLength += connectedDevice.name.length
+        append("Status: ")
+        append("connected \n").apply {
+            setSpan(StyleSpan(BOLD), accumulatedLength, "connected".length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+        }
+    }
+    text = spannedStringBuilder
 }
