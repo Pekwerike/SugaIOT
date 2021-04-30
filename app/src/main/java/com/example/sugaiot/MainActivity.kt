@@ -138,12 +138,17 @@ class MainActivity : AppCompatActivity() {
         mainActivityViewModel.scanStateUpdated()
     }
 
+    private fun turnOnDeviceLocation(){
+        val locationSettingsRequestBuilder = LocationSettingRequest
+    }
     private fun scanForLeDevices() {
         if (bluetoothAdapter == null) return
         if (!hasAccessToDeviceFineLocation()) {
             requestAccessToDeviceFineLocation()
             return
         }
+        // ensure that the user device location is turned on
+
         if (!mainActivityViewModel.isScanning.value!!) {
             if (bluetoothAdapter?.isEnabled == false) switchBluetooth()
             mainActivityViewModel.scanStateUpdated()

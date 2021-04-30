@@ -40,15 +40,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/main_activity_header_text_view" />
 
-        <ViewStub
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:inflatedId="@+id/connected_to_gatt_server_view_stub_layout_root_view_id"
-            android:id="@+id/connected_to_gatt_server_view_stub"
-            app:layout_constraintBottom_toTopOf="@id/start_search_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/main_activity_header_text_view"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/start_search_button"
