@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity() {
         val locationRequestTwo = LocationRequest.create().apply{
             interval = 6000
             fastestInterval = 4000
-            priority = PRIORITY_BALANCED_POWER_ACCURACY
+            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
 
         val locationRequest = LocationRequest.create().apply{
