@@ -26,12 +26,6 @@ class LoadingButton @JvmOverloads constructor(
     private var sweepAngle: Float = 30f
     private var rotationAngle: Float = 0f
 
-    private val buttonBackgroundPaint: Paint = Paint().apply {
-        style = Paint.Style.FILL
-        color = ContextCompat.getColor(context, R.color.purple_500)
-        isAntiAlias = true
-        isDither = true
-    }
 
     private val loadingCirclePaint: Paint = Paint().apply {
         style = Paint.Style.STROKE
@@ -50,7 +44,6 @@ class LoadingButton @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         if (loading) {
-
             canvas?.let {
                 drawLoadingCircle(it)
             }

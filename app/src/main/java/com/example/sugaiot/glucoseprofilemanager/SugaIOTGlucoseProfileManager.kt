@@ -16,7 +16,7 @@ import javax.inject.Singleton
 class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext private val context: Context) :
     BluetoothGattCallback() {
     private var glucoseMeasurementRecord: GlucoseMeasurementRecord = GlucoseMeasurementRecord()
-    private val glucoseMeasurementRecordAvailableIntent = Intent(
+    private val bluetoothGattStateIntent = Intent(
         BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE
     )
     private val localBroadcastManager: LocalBroadcastManager =
@@ -27,11 +27,19 @@ class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext priva
             BluetoothGatt.STATE_CONNECTED -> {
                 // TODO Use local broadcast manager to tell the application that the peripheral has been connected to
                 gatt?.discoverServices()
+                bluetoothGattStateIntent.apply {
+                    action =
+                        BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE
+                    localBroadcastManager.sendBroadcast(this)
+                }
             }
 
             BluetoothGatt.STATE_DISCONNECTED -> {
-                // TODO Use local broadcast manager to tell the application that the peripheral has been disconnected from
-
+                bluetoothGattStateIntent.apply {
+                    action =
+                        BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE
+                    localBroadcastManager.sendBroadcast(this)
+                }
             }
         }
     }
@@ -236,7 +244,7 @@ class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext priva
                             sensorStatusAnnunciation
 
                     }
-                    localBroadcastManager.sendBroadcast(glucoseMeasurementRecordAvailableIntent.apply {
+                    localBroadcastManager.sendBroadcast(bluetoothGattStateIntent.apply {
                         putExtra(
                             BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA,
                             glucoseMeasurementRecord
@@ -245,7 +253,7 @@ class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext priva
                 }
 
                 GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CONTEXT_CHARACTERISTIC_UUID -> {
-                    // Todo, get characteristic value of the glucose measurement context characterisitic
+                    // Todo, get characteristic value of the glucose measurement context characteristic
                 }
                 GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID -> {
                     // Todo, get characteristic value of the record access control point
