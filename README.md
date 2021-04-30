@@ -1,4 +1,3 @@
-![Screenshot_20210430_131843_com example sugaiot](https://user-images.githubusercontent.com/43956851/116695390-78c22c80-a9b8-11eb-9b0e-76f3d3caec2b.jpg)
 # SugaIOT
 SugaIOT is an android application that synchronizes and interacts with a Bluetooth low-energy glucose meter. The application implements the 
 [Bluetooth Special Interest Group (SIG)](https://www.bluetooth.com/) Glucose meter profile which enables a smartphone to connect and interact with a glucose sensor for consumer health applications. 
@@ -25,7 +24,7 @@ SugaIOT requires the following runtime permission from the user
 2. Access to device turn on the device bluetooth
 
 ## ScreenShot
- <img src="https://user-images.githubusercontent.com/43956851/116695390-78c22c80-a9b8-11eb-9b0e-76f3d3caec2b.jpg" width="320" height="620"> <img src="https://user-images.githubusercontent.com/43956851/110861661-c080dd80-82be-11eb-8ef1-057a7a6484cf.png" width="320" height="620">
+ <img src="https://user-images.githubusercontent.com/43956851/116695390-78c22c80-a9b8-11eb-9b0e-76f3d3caec2b.jpg" width="320" height="620">
 
 ## How to Install 
 Clone the repository and open the project in any Android Studio version >= 4.0 
