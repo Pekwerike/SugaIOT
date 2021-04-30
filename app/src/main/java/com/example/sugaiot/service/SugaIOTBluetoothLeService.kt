@@ -7,12 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.sugaiot.GlucoseProfileConfiguration
-import com.example.sugaiot.broadcastreceiver.BluetoothGattStateInformationReceiver
-import com.example.sugaiot.glpmanager.SugaIOTGlucoseProfileManager
-import com.example.sugaiot.model.GlucoseMeasurementRecord
-import com.example.sugaiot.model.SensorStatusAnnunciation
+import com.example.sugaiot.glucoseprofilemanager.SugaIOTGlucoseProfileManager
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import javax.inject.Inject

@@ -1,4 +1,4 @@
-package com.example.sugaiot
+package com.example.sugaiot.glucoseprofilemanager
 
 import java.util.*
 

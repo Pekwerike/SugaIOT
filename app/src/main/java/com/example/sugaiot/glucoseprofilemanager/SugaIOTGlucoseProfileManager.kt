@@ -1,10 +1,9 @@
-package com.example.sugaiot.glpmanager
+package com.example.sugaiot.glucoseprofilemanager
 
 import android.bluetooth.*
 import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.sugaiot.GlucoseProfileConfiguration
 import com.example.sugaiot.broadcastreceiver.BluetoothGattStateInformationReceiver
 import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.model.SensorStatusAnnunciation
