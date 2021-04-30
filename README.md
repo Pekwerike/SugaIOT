@@ -23,6 +23,9 @@ SugaIOT requires the following runtime permission from the user
 1. Access to turn on the device GPS 
 2. Access to device turn on the device bluetooth
 
+## ScreenShot
+ <img src="https://user-images.githubusercontent.com/43956851/116695390-78c22c80-a9b8-11eb-9b0e-76f3d3caec2b.jpg" width="320" height="620">
+
 ## How to Install 
 Clone the repository and open the project in any Android Studio version >= 4.0 
 
