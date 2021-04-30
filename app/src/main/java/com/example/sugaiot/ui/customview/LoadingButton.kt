@@ -1,5 +1,6 @@
 package com.example.sugaiot.ui.customview
 
+import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
@@ -17,10 +18,13 @@ import com.google.android.material.button.MaterialButton
 class LoadingButton @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : MaterialButton(context, attrs, defStyleAttr) {
-    private var loading = true
+    private var loading: Boolean = true
     private var mWidth: Int = 0
     private var mHeight: Int = 0
     private lateinit var buttonRect: RectF
+    private var startAngle: Float = 360f
+    private var sweepAngle: Float = 30f
+    private var rotationAngle: Float = 0f
 
     private val buttonBackgroundPaint: Paint = Paint().apply {
         style = Paint.Style.FILL
@@ -29,7 +33,7 @@ class LoadingButton @JvmOverloads constructor(
         isDither = true
     }
 
-    private val loadingCirclePaint : Paint = Paint().apply {
+    private val loadingCirclePaint: Paint = Paint().apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
@@ -55,18 +59,20 @@ class LoadingButton @JvmOverloads constructor(
     }
 
     private fun drawLoadingCircle(canvas: Canvas) {
-
+        canvas.save()
+        canvas.rotate(rotationAngle)
         // TODO, animate the startAngle and sweepAngle in the onSizeChanged.
         canvas.drawArc(
             mWidth * 0.7f,
             mHeight * 0.25f,
             mWidth * 0.9f,
             mHeight * 0.75f,
-            360f,
-            180f,
+            startAngle,
+            sweepAngle,
             true,
             loadingCirclePaint
         )
+        canvas.restore()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -74,6 +80,40 @@ class LoadingButton @JvmOverloads constructor(
         mWidth = w
         mHeight = h
         buttonRect = RectF(left.toFloat(), top.toFloat(), mWidth.toFloat(), mHeight.toFloat())
+
+        // animate the start angle
+        val startAngleAnimator = ValueAnimator.ofFloat(startAngle, 180f).apply {
+            duration = 400
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+            start()
+        }
+        startAngleAnimator.addUpdateListener {
+            startAngle = it.animatedValue as Float
+        //    invalidate()
+        }
+
+        val sweepAngleAnimator = ValueAnimator.ofFloat(sweepAngle, 300f).apply {
+            duration = 500
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+            start()
+        }
+        sweepAngleAnimator.addUpdateListener {
+            sweepAngle = it.animatedValue as Float
+            invalidate()
+        }
+
+        val rotationAngleAnimator = ValueAnimator.ofFloat(rotationAngle, 360f).apply {
+            duration = 350
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+            start()
+        }
+        rotationAngleAnimator.addUpdateListener {
+            rotationAngle = it.animatedValue as Float
+          //  invalidate()
+        }
 
     }
 }
