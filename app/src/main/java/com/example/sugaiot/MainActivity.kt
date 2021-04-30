@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.ParcelUuid
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -39,7 +40,8 @@ import javax.inject.Inject
 
 
 const val ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE = 1010
-
+const val CHECK_LOCATION_SETTINGS = 2020
+const val ENABLE_BLUETOOTH_REQUEST_CODE = 1024
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
@@ -59,6 +61,11 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var notificationUtils: NotificationUtils
 
+    private val turnOnBluetoothResultLancher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){result->
+        if(result.resultCode == Activity.RESULT_OK){
+            scanForLeDevices()
+        }
+    }
     private val bluetoothGattStateInformationReceiver = BluetoothGattStateInformationReceiver(
         bluetoothGattStateInformationCallback =
         object : BluetoothGattStateInformationReceiver.BluetoothGattStateInformationCallback {
@@ -148,37 +155,32 @@ class MainActivity : AppCompatActivity() {
 
     private fun turnOnDeviceLocation() {
 
-        val locationSettingsRequestBuilder = LocationSettingsRequest.Builder().apply {
-            addLocationRequest(LocationRequest.create().apply {
-                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                interval = 30 * 1000;
-                fastestInterval = 5 * 1000;
-            })
-            setAlwaysShow(true)
-            setNeedBle(true)
-        }.build()
+        val locationRequestTwo = LocationRequest.create().apply{
+            interval = 6000
+            fastestInterval = 4000
+            priority = PRIORITY_BALANCED_POWER_ACCURACY
+        }
 
-        LocationServices.getSettingsClient(this).apply {
-            checkLocationSettings(locationSettingsRequestBuilder).addOnCompleteListener { p0 ->
-                try {
-                    val response: LocationSettingsResponse =
-                        p0.getResult(ApiException::class.java)
-                    scanForLeDevices()
-                    // All location settings are satisfied. The client can initialize location
-                    // requests here.
-                } catch (apiException: ApiException) {
-                    when (apiException.statusCode) {
-                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                            val resolvableException = apiException as ResolvableApiException
-                            resolvableException.startResolutionForResult(
-                                this@MainActivity,
-                                1010
-                            )
-                        }
-                        LocationSettingsStatusCodes.SUCCESS -> {
-                            scanForLeDevices()
-                        }
-                    }
+        val locationRequest = LocationRequest.create().apply{
+            interval = 3000
+            fastestInterval = 1500
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .addLocationRequest(locationRequestTwo)
+
+        val client : SettingsClient = LocationServices.getSettingsClient(this)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+        task.addOnSuccessListener {locationSettingsResponse ->
+            scanForLeDevices()
+        }
+        task.addOnFailureListener{ exception ->
+            if(exception is ResolvableApiException){
+                try{
+                    exception.startResolutionForResult(this@MainActivity, CHECK_LOCATION_SETTINGS)
+                }catch(sendEx: IntentSender.SendIntentException){
+                    // Ignore the error
                 }
             }
         }
@@ -186,7 +188,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when(requestCode){
-            1010 -> {
+            CHECK_LOCATION_SETTINGS -> {
                 if(resultCode == Activity.RESULT_OK){
                     scanForLeDevices()
                 }
@@ -194,6 +196,7 @@ class MainActivity : AppCompatActivity() {
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
+
 
     private fun scanForLeDevices() {
         if (bluetoothAdapter == null) return
@@ -205,7 +208,10 @@ class MainActivity : AppCompatActivity() {
         // ensure that the user device location is turned on
 
         if (!mainActivityViewModel.isScanning.value!!) {
-            if (bluetoothAdapter?.isEnabled == false) switchBluetooth()
+            if (bluetoothAdapter?.isEnabled == false) {
+                switchBluetooth()
+                return
+            }
             mainActivityViewModel.scanStateUpdated()
             // todo, Improve the scan process to look for only devices with the glucose service uuid
             CoroutineScope(Dispatchers.Main).launch {
@@ -300,7 +306,10 @@ class MainActivity : AppCompatActivity() {
             if (it.isEnabled) {
                 it.disable()
             } else {
-                it.enable()
+
+                Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE).apply {
+                    turnOnBluetoothResultLancher.launch(this)
+                }
             }
         }
     }
