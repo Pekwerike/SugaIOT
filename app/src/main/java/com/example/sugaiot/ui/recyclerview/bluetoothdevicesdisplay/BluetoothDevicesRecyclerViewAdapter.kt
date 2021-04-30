@@ -1,13 +1,14 @@
 package com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 
 class BluetoothDevicesRecyclerViewAdapter(
     private val bluetoothDeviceOnConnectClickListener: BluetoothDeviceOnConnectClickListener
 ) :
-    ListAdapter<BluetoothDevice, BluetoothDeviceLayoutItemViewHolder>(
+    ListAdapter<ScanResult, BluetoothDeviceLayoutItemViewHolder>(
         BluetoothDevicesRecyclerViewAdapterDiffUtil
     ) {
     override fun onCreateViewHolder(
@@ -19,7 +20,7 @@ class BluetoothDevicesRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: BluetoothDeviceLayoutItemViewHolder, position: Int) {
         holder.bindDeviceData(
-            bluetoothDevice = getItem(position),
+            bluetoothScanResult = getItem(position),
             bluetoothDeviceOnConnectClickListener = bluetoothDeviceOnConnectClickListener
         )
     }

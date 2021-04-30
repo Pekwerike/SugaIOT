@@ -1,6 +1,7 @@
 package com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -14,17 +15,23 @@ class BluetoothDeviceLayoutItemViewHolder(
 ) : RecyclerView.ViewHolder(bluetoothDeviceLayoutItemBinding.root) {
 
     fun bindDeviceData(
-        bluetoothDevice: BluetoothDevice,
+        bluetoothScanResult : ScanResult,
         bluetoothDeviceOnConnectClickListener:
         BluetoothDevicesRecyclerViewAdapter.BluetoothDeviceOnConnectClickListener
     ) {
         bluetoothDeviceLayoutItemBinding.apply {
-            deviceName = bluetoothDevice.name ?: "Unknown device"
-            deviceAddress = bluetoothDevice.address ?: "No address"
+            deviceName = bluetoothScanResult.device.name ?: "Unknown device"
+            deviceAddress = bluetoothScanResult.device.address ?: "No address"
+            canConnect = if(if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    bluetoothScanResult.isConnectable
+                } else {
+                    true
+                }
+            ) "Can connect" else "Cannot connect"
 
             connectToBluetoothDeviceButton.setOnClickListener {
                 bluetoothDeviceOnConnectClickListener.onConnectClicked(
-                    device = bluetoothDevice
+                    device = bluetoothScanResult.device
                 )
             }
         }

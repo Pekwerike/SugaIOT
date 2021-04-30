@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -10,6 +11,10 @@
         <variable
             name="deviceAddress"
             type="String" />
+
+        <variable
+            name="canConnect"
+            type="String" />
     </data>
 
     <LinearLayout
@@ -19,17 +24,31 @@
         android:orientation="horizontal"
         android:paddingVertical="@dimen/standard_padding">
 
-        <com.google.android.material.textview.MaterialTextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
             android:layout_weight="1"
-            android:padding="@dimen/standard_padding"
-            android:lineSpacingExtra="2dp"
-            setDeviceAddress="@{deviceAddress}"
-            setDeviceName="@{deviceName}"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-            />
+            android:orientation="vertical">
+
+            <com.google.android.material.textview.MaterialTextView
+                setDeviceAddress="@{deviceAddress}"
+                setDeviceName="@{deviceName}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:lineSpacingExtra="2dp"
+                android:padding="@dimen/standard_padding"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:paddingHorizontal="@dimen/standard_padding"
+                setCanConnectText="@{canConnect}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                />
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_to_bluetooth_device_button"

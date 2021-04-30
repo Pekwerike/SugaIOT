@@ -16,22 +16,22 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
     val isScanning: LiveData<Boolean> = _isScanning
 
     // list of scan results that will be displayed on the ui
-    private val _bluetoothLeScanResultMap =
-        MutableLiveData<ArrayMap<String, ScanResult>>(ArrayMap())
-    val bluetoothLeScanResultMap: LiveData<ArrayMap<String, ScanResult>> = _bluetoothLeScanResultMap
+    private val _bluetoothLeScanResultMap = ArrayMap<String, ScanResult>(ArrayMap())
+
+
+    private val _bluetoothLeScanResult = MutableLiveData<MutableList<ScanResult>>(mutableListOf())
+    val bluetoothLeScanResult: LiveData<MutableList<ScanResult>> = _bluetoothLeScanResult
 
     fun scanStateUpdated() {
         _isScanning.value = !_isScanning.value!!
     }
 
     fun addBluetoothLeScanResult(scanResult: ScanResult) {
-        _bluetoothLeScanResultMap.value = _bluetoothLeScanResultMap.value?.apply {
-            /*val searchKey = scanResult.scanRecord?.bytes.contentToString()
-            val oldEntry = get(searchKey)
-            oldEntry?.let {
-                put(searchKey, scanResult)
-            }*/
+        _bluetoothLeScanResultMap.apply {
             put(scanResult.scanRecord?.bytes.contentToString(), scanResult)
+            if(this.values.size > _bluetoothLeScanResult.value!!.size) {
+                _bluetoothLeScanResult.value = values.toMutableList()
+            }
         }
     }
 }

@@ -4,10 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,7 +14,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
+import com.example.sugaiot.broadcastreceiver.BluetoothGattStateInformationReceiver
 import com.example.sugaiot.databinding.ActivityMainBinding
+import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.service.SugaIOTBluetoothLeService
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
 import com.example.sugaiot.viewmodel.MainActivityViewModel
@@ -47,6 +46,24 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var bluetoothDevicesRecyclerViewAdapter: BluetoothDevicesRecyclerViewAdapter
 
+    private val bluetoothGattStateInformationReceiver = BluetoothGattStateInformationReceiver(
+        bluetoothGattStateInformationCallback =
+        object : BluetoothGattStateInformationReceiver.BluetoothGattStateInformationCallback {
+            override fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord) {
+
+            }
+
+            override fun connectedToAGattServer() {
+                displayToast("Connected to a Gatt Server")
+            }
+
+            override fun disconnectedFromAGattServer() {
+                displayToast("Disconnected from a Gatt Server")
+            }
+
+        }
+    )
+
     // code to manage SugaIOTBluetoothLeService lifecycle
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -68,6 +85,7 @@ class MainActivity : AppCompatActivity() {
             BluetoothDevicesRecyclerViewAdapter.BluetoothDeviceOnConnectClickListener {
                 connectToBluetoothLeDevice(it)
             })
+        registerBluetoothGattStateInformationReceiver()
         activityMainBinding.apply {
             startSearchButton.setOnClickListener {
                 if (mainActivityViewModel.isScanning.value!!) {
@@ -78,6 +96,7 @@ class MainActivity : AppCompatActivity() {
             }
             discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
         }
+
         observeMainActivityViewModelLiveData()
         //start and bind to SugaIOTBluetoothService when ever on create is called
         Intent(this, SugaIOTBluetoothLeService::class.java).also { intent ->
@@ -86,6 +105,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun registerBluetoothGattStateInformationReceiver() {
+        IntentFilter().apply {
+            addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE)
+            addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE)
+            addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE)
+            addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA)
+            registerReceiver(bluetoothGattStateInformationReceiver, this)
+        }
+    }
+
+    private fun unregisterBluetoothGattStateInformationReceiver(){
+        unregisterReceiver(bluetoothGattStateInformationReceiver)
+    }
 
     private fun connectToBluetoothLeDevice(device: BluetoothDevice) {
         // onConnect to device, put the SugaIOTBluetoothLeService in the foreground
@@ -140,12 +172,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeMainActivityViewModelLiveData() {
-        mainActivityViewModel.bluetoothLeScanResultMap.observe(this) {
+        mainActivityViewModel.bluetoothLeScanResult.observe(this) {
             it?.let {
                 bluetoothDevicesRecyclerViewAdapter.submitList(
-                    it.map { entry ->
-                        entry.value.device
-                    }.toMutableList()
+                    it
                 )
             }
         }
@@ -210,6 +240,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         // unbind from SugaIOTBluetoothLeService when onDestroy is called
         sugaIOTBluetoothLeService?.unbindService(serviceConnection)
+        unregisterBluetoothGattStateInformationReceiver()
         super.onDestroy()
     }
 }
