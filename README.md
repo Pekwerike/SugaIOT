@@ -16,7 +16,7 @@ SugaIOT's configuration for the bluetooth low-energy glucose profile, services, 
 All major interactions with the android BluetoothLe APIs are done within the [SugaIOTGlucoseProfileManager](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/glucoseprofilemanager/SugaIOTGlucoseProfileManager.kt). This class allows for a stable interaction with android bluetooth low-energy APIs and it is responsible for performing all the logical operations that aree neccessary to communicate with the glucose sensor.
 
 ## Data Representation
-Each glucose measurement record for a patient notified by the glucose sensor Record Access Control Point (RACP) is parse by the SugaIOTGlucoseProfileManager into a [GlucoseMeasurementRecord](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/model/GlucoseMeasurementRecord.kt) object. Data notified by the glucose sensor, are parsed using the Bluetooth SIG specifications for the glucose service.
+Each glucose measurement record for a patient is read from the glucose sensor Record Access Control Point (RACP) and parsed by the SugaIOTGlucoseProfileManager into a [GlucoseMeasurementRecord](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/model/GlucoseMeasurementRecord.kt) object. Glucose measurement record data parsing and decrypting are done by following the Bluetooth SIG specifications for the glucose service.
 
 
 
