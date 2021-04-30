@@ -10,7 +10,7 @@ Test-Driven Development (TDD) and Automated Dependency Injection with Dagger Hil
 ## Bluetooth SIG Glucose Profile Configuration 
 SugaIOT's configuration for the Bluetooth low-energy glucose profile, services, characteristics, and descriptors are managed in the [GlucoseProfileConfiguration](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/glucoseprofilemanager/GlucoseProfileConfiguration.kt) object which specifies the relevant:
 - 16-bit Universally Unique Identifier (UUID) for glucose service's characteristics and descriptors.
-- Opcode, operators, filter types, and response codes for the glucose service record access control point characteristic procedures. 
+- Opcode, operators, filter types, and response codes for the glucose service Record Access Control Point (RACP) characteristic procedures. 
 
 ## Interaction with android Bluetooth low-energy APIs 
 All major interactions with the android BluetoothLe APIs are done within the [SugaIOTGlucoseProfileManager](https://github.com/Pekwerike/SugaIOT/blob/master/app/src/main/java/com/example/sugaiot/glucoseprofilemanager/SugaIOTGlucoseProfileManager.kt). This class allows for a stable interaction with android Bluetooth low-energy APIs and it is responsible for performing all the logical operations that are necessary to communicate with the glucose sensor.
