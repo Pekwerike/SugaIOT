@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         bluetoothGattStateInformationCallback =
         object : BluetoothGattStateInformationReceiver.BluetoothGattStateInformationCallback {
             override fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord) {
-                displayToast("Measurement ${glucoseMeasurementRecord.glucoseConcentrationValue}")
+                displayToast("Measurement ${glucoseMeasurementRecord.convertGlucoseConcentrationValueToMilligramsPerDeciliter()}")
             }
 
             override fun connectedToAGattServer(connectedDevice: BluetoothDevice) {
