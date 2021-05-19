@@ -45,9 +45,10 @@ const val ENABLE_BLUETOOTH_REQUEST_CODE = 1024
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val localBroadcastManager by lazy {
-        LocalBroadcastManager.getInstance(this)
-    }
+
+    @Inject
+    lateinit var localBroadcastManager: LocalBroadcastManager
+
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
     }

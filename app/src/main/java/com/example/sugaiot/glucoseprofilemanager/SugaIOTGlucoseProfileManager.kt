@@ -13,13 +13,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext private val context: Context) :
-    BluetoothGattCallback() {
+class SugaIOTGlucoseProfileManager @Inject constructor(
+    private val localBroadcastManager: LocalBroadcastManager
+) : BluetoothGattCallback() {
     private var glucoseMeasurementRecord: GlucoseMeasurementRecord = GlucoseMeasurementRecord()
     private val bluetoothGattStateIntent = Intent()
-    private val localBroadcastManager: LocalBroadcastManager =
-        LocalBroadcastManager.getInstance(context)
-
     private var glucoseService: BluetoothGattService? = null
 
     override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -177,15 +175,30 @@ class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext priva
                     offset += 2 // offset is 5
 
                     val baseTimeMonth: Int =
-                        characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, offset++) // offset is 5 before use, and 6 after use
+                        characteristic.getIntValue(
+                            BluetoothGattCharacteristic.FORMAT_UINT8,
+                            offset++
+                        ) // offset is 5 before use, and 6 after use
                     val baseTimeDay: Int =
-                        characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, offset++) // offset is 6 before use, and 7 after use
+                        characteristic.getIntValue(
+                            BluetoothGattCharacteristic.FORMAT_UINT8,
+                            offset++
+                        ) // offset is 6 before use, and 7 after use
                     val baseTimeHours: Int =
-                        characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, offset++) // offset is 7 before use, and 8 after use
+                        characteristic.getIntValue(
+                            BluetoothGattCharacteristic.FORMAT_UINT8,
+                            offset++
+                        ) // offset is 7 before use, and 8 after use
                     val baseTimeMinutes: Int =
-                        characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, offset++) // offset is 8 before use, and 9 after use
+                        characteristic.getIntValue(
+                            BluetoothGattCharacteristic.FORMAT_UINT8,
+                            offset++
+                        ) // offset is 8 before use, and 9 after use
                     val baseTimeSeconds: Int =
-                        characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, offset++) // offset is 9 before use, and 10 after use
+                        characteristic.getIntValue(
+                            BluetoothGattCharacteristic.FORMAT_UINT8,
+                            offset++
+                        ) // offset is 9 before use, and 10 after use
 
                     glucoseMeasurementRecord.calendar = GregorianCalendar(
                         baseTimeYear,
@@ -274,7 +287,8 @@ class SugaIOTGlucoseProfileManager @Inject constructor(@ApplicationContext priva
 
                     }
                     localBroadcastManager.sendBroadcast(bluetoothGattStateIntent.apply {
-                        action = BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE
+                        action =
+                            BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE
                         putExtra(
                             BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA,
                             glucoseMeasurementRecord
