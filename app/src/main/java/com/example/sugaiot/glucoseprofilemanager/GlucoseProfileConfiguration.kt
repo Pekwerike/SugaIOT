@@ -21,6 +21,8 @@ https://github.com/oesmith/gatt-xml/blob/master/org.bluetooth.characteristic.rec
 */
 object GlucoseProfileConfiguration {
 
+    val DEVICE_BATTERY_CHARACTERISTIC_UUID: UUID =
+        UUID.fromString("0000180F-0000-1000-8000-00805f9b34fb")
     val GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID: UUID =
         UUID.fromString("00002A18-0000-1000-8000-00805F9B34FB")
     val GLUCOSE_FEATURE_CHARACTERISTIC_UUID: UUID =

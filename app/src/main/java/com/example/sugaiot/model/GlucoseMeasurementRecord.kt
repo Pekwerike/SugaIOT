@@ -20,8 +20,12 @@ data class GlucoseMeasurementRecord(
     var sampleLocationInteger: Int = 0,
     var testBloodType: String = "Capillary Whole blood",
     var sampleLocation: String = "Earlobe",
-    var sensorStatusAnnunciation: SensorStatusAnnunciation? = null
+    var sensorStatusAnnunciation: SensorStatusAnnunciation? = null,
 ) : Parcelable {
+
+    fun convertGlucoseConcentrationValueToMilligramsPerDeciliter(): String {
+        return "${glucoseConcentrationValue * 10_000}mg/l"
+    }
 
     enum class GlucoseConcentrationMeasurementUnit(value: String) {
         MOLES_PER_LITRE("mol/L"),

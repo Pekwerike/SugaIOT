@@ -21,6 +21,7 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
         fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord)
         fun connectedToAGattServer(connectedDevice : BluetoothDevice)
         fun disconnectedFromAGattServer()
+        fun bondStateExtra(boundState: Int)
     }
 
     companion object {

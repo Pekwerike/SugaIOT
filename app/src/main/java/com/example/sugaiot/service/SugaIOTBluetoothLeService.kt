@@ -2,12 +2,11 @@ package com.example.sugaiot.service
 
 import android.app.Service
 import android.bluetooth.*
-import android.bluetooth.le.BluetoothLeScanner
 import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import com.example.sugaiot.R
+import com.example.sugaiot.glucoseprofilemanager.GlucoseProfileConfiguration
 import com.example.sugaiot.glucoseprofilemanager.SugaIOTGlucoseProfileManager
 import com.example.sugaiot.notification.NotificationUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -57,6 +56,49 @@ class SugaIOTBluetoothLeService : Service() {
     }
 
     private fun connectToBluetoothLeDevice(device: BluetoothDevice) {
-        bluetoothGatt = device.connectGatt(this, true, sugaIOTGlucoseProfileManager)
+        //    device.createBond()
+        bluetoothGatt = device.connectGatt(this@SugaIOTBluetoothLeService, false, sugaIOTGlucoseProfileManager)
     }
+
+    private val bleCallback = object : BluetoothGattCallback() {
+        override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothGatt.STATE_CONNECTED
+                && gatt != null
+            ) {
+
+                bluetoothGatt.discoverServices()
+            }
+        }
+
+        override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+            val glucoseService = bluetoothGatt.getService(
+                GlucoseProfileConfiguration
+                    .GLUCOSE_SERVICE_UUID
+            )
+
+            val glmCharacteristic = glucoseService.getCharacteristic(
+                GlucoseProfileConfiguration
+                    .GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID
+            )
+            bluetoothGatt.setCharacteristicNotification(glmCharacteristic, true)
+            val cccd = glmCharacteristic.getDescriptor(
+                GlucoseProfileConfiguration
+                    .CLIENT_CHARACTERISTICS_CONFIGURATION_DESCRIPTOR
+            )
+            cccd.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            val rr = bluetoothGatt.writeDescriptor(cccd)
+            rr
+        }
+
+        override fun onDescriptorWrite(
+            gatt: BluetoothGatt?,
+            descriptor: BluetoothGattDescriptor?,
+            status: Int
+        ) {
+            val kels = 30
+            kels
+        }
+    }
+
+
 }
