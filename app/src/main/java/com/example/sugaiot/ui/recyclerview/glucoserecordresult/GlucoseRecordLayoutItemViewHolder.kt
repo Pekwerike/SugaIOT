@@ -23,8 +23,13 @@ class GlucoseRecordLayoutItemViewHolder(
                 glucoseMeasurementRecord.calendar
                     .get(Calendar.MINUTE)
             }${
-                glucoseMeasurementRecord.calendar
-                    .get(Calendar.AM_PM)
+                if (glucoseMeasurementRecord.calendar
+                        .get(Calendar.AM_PM) == 1
+                ) {
+                    "AM"
+                } else {
+                    "PM"
+                }
             }"
             glucoseConcentrationValue =
                 glucoseMeasurementRecord.convertGlucoseConcentrationValueToMilligramsPerDeciliter()
