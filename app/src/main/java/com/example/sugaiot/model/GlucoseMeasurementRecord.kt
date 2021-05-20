@@ -24,7 +24,7 @@ data class GlucoseMeasurementRecord(
 ) : Parcelable {
 
     fun convertGlucoseConcentrationValueToMilligramsPerDeciliter(): String {
-        return "${glucoseConcentrationValue * 100_000}mg/l"
+        return "${glucoseConcentrationValue * 100_000}mg/dL"
     }
 
     enum class GlucoseConcentrationMeasurementUnit(value: String) {

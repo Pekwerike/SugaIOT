@@ -27,31 +27,23 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
     private var glucoseService: BluetoothGattService? = null
 
     override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
-        when (newState) {
-            BluetoothGatt.STATE_CONNECTED -> {
-                if (status == BluetoothGatt.GATT_SUCCESS) {
+        if (status == BluetoothGatt.GATT_SUCCESS) {
+            when (newState) {
+                BluetoothGatt.STATE_CONNECTED -> {
                     // TODO Use local broadcast manager to tell the application that the peripheral has been connected to
                     gatt?.let {
                         gatt.discoverServices()
                         Log.i("GlucoseResult", "Connected")
-                        /*   bluetoothGattStateIntent.apply {
-                               action =
-                                   BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE
-                               putExtra(
-                                   BluetoothGattStateInformationReceiver.DEVICE_CONNECTED_TO_EXTRA,
-                                   gatt.device
-                               )
-                               localBroadcastManager.sendBroadcast(this)
-                           }*/
+
                     }
                 }
-            }
 
-            BluetoothGatt.STATE_DISCONNECTED -> {
-                bluetoothGattStateIntent.apply {
-                    action =
-                        BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE
-                    localBroadcastManager.sendBroadcast(this)
+                BluetoothGatt.STATE_DISCONNECTED -> {
+                    bluetoothGattStateIntent.apply {
+                        action =
+                            BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE
+                        localBroadcastManager.sendBroadcast(this)
+                    }
                 }
             }
         }
@@ -155,7 +147,6 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
         }
     }
 
-    val mutex = Mutex()
 
     @Synchronized
     override fun onCharacteristicChanged(
@@ -302,10 +293,6 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                             sensorStatusAnnunciation
 
                     }
-                    Log.i(
-                        "GlucoseResult",
-                        glucoseMeasurementRecord.glucoseConcentrationValue.toString()
-                    )
 
                     localBroadcastManager.sendBroadcast(bluetoothGattStateIntent.apply {
                         action =

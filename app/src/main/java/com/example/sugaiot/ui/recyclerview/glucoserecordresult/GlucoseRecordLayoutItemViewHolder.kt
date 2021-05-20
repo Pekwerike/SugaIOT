@@ -15,16 +15,21 @@ class GlucoseRecordLayoutItemViewHolder(
 ) : RecyclerView.ViewHolder(glucoseRecordLayoutItemBinding.root) {
 
     fun bindGlucoseRecordData(glucoseMeasurementRecord: GlucoseMeasurementRecord) {
+        val hour = glucoseMeasurementRecord.calendar
+            .get(Calendar.HOUR)
         glucoseRecordLayoutItemBinding.apply {
             recordTime = "${
-                glucoseMeasurementRecord.calendar
-                    .get(Calendar.HOUR)
+                if (hour == 0) {
+                    12
+                } else {
+                    hour
+                }
             }:${
                 glucoseMeasurementRecord.calendar
                     .get(Calendar.MINUTE)
             }${
                 if (glucoseMeasurementRecord.calendar
-                        .get(Calendar.AM_PM) == 1
+                        .get(Calendar.AM_PM) == 0
                 ) {
                     "AM"
                 } else {

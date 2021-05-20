@@ -9,13 +9,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.ui.recyclerview.glucoserecordresult.GlucoseRecordRecyclerViewData
-import com.example.sugaiot.ui.recyclerview.glucoserecordresult.months
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
+
+val months = mapOf(
+    1 to "January", 2 to "February", 3 to "March",
+    4 to "April", 5 to "May", 6 to "June", 7 to "July", 8 to "August", 9 to "September",
+    10 to "October", 11 to "November", 12 to "December"
+)
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor() : ViewModel() {
@@ -55,8 +60,8 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
 
     fun createGlucoseMeasurementRecordsRecyclerviewData() {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.i("GlucoseResult", "CollectionSize is ${collectionOfGlucoseResults.size}")
-            val groupedList = collectionOfGlucoseResults.groupBy {
+            val groupedList = collectionOfGlucoseResults.toSet()
+                .groupBy {
                 "${it.calendar.get(Calendar.DAY_OF_MONTH)} " +
                         "${months[it.calendar.get(Calendar.MONTH)]}, " +
                         "${it.calendar.get(Calendar.YEAR)}"
@@ -79,6 +84,5 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
 
     fun addGlucoseMeasurementRecord(glucoseMeasurementRecord: GlucoseMeasurementRecord) {
         collectionOfGlucoseResults.add(glucoseMeasurementRecord)
-        Log.i("GlucoseResult", "Added ${glucoseMeasurementRecord.glucoseConcentrationValue}")
     }
 }

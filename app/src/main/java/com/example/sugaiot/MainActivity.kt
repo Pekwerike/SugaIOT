@@ -26,9 +26,7 @@ import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.notification.NotificationUtils
 import com.example.sugaiot.service.SugaIOTBluetoothLeService
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
-import com.example.sugaiot.ui.recyclerview.glucoserecordresult.GlucoseRecordRecyclerViewData
 import com.example.sugaiot.ui.recyclerview.glucoserecordresult.GlucoseRecordsRecyclerViewAdapter
-import com.example.sugaiot.ui.recyclerview.glucoserecordresult.months
 import com.example.sugaiot.viewmodel.MainActivityViewModel
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -138,9 +136,7 @@ class MainActivity : AppCompatActivity() {
                     turnOnDeviceLocation()
                 }
             }
-            readAllResultsButton.setOnClickListener {
-                sugaIOTBluetoothLeService?.readAllResults()
-            }
+
             glucoseRecordsResultRecyclerview.adapter = glucoseRecordsRecyclerViewAdapter
             discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
         }

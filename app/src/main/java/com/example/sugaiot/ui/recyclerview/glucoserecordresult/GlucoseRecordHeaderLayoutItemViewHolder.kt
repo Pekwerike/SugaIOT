@@ -10,11 +10,6 @@ import com.example.sugaiot.databinding.GlucoseRecordHeaderLayoutItemBinding
 import com.example.sugaiot.model.GlucoseMeasurementRecord
 import java.util.*
 
-val months = mapOf(
-    0 to "January", 1 to "February", 2 to "March",
-    3 to "April", 4 to "May", 5 to "June", 6 to "July", 7 to "August", 8 to "September",
-    9 to "October", 10 to "November", 11 to "December"
-)
 
 class GlucoseRecordHeaderLayoutItemViewHolder
     (
