@@ -64,14 +64,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/read_all_results_button"
-            android:layout_width="wrap_content"
-            android:text="Read All"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_height="wrap_content" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
