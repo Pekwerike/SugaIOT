@@ -16,23 +16,24 @@
         tools:context=".MainActivity">
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:padding="@dimen/standard_padding"
-            android:layout_margin="16dp"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
             android:id="@+id/main_activity_header_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:padding="@dimen/standard_padding"
+            android:text="@string/app_name"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/discovered_peers_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:elevation="@dimen/standard_margin"
             android:layout_margin="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@id/start_search_button"
@@ -40,6 +41,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/main_activity_header_text_view" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/glucose_records_result_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            android:alpha="0"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/main_activity_header_text_view" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/start_search_button"
@@ -52,6 +64,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/read_all_results_button"
+            android:layout_width="wrap_content"
+            android:text="Read All"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="wrap_content" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

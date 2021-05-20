@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.IBinder
 import android.os.ParcelUuid
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -25,6 +26,9 @@ import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.notification.NotificationUtils
 import com.example.sugaiot.service.SugaIOTBluetoothLeService
 import com.example.sugaiot.ui.recyclerview.bluetoothdevicesdisplay.BluetoothDevicesRecyclerViewAdapter
+import com.example.sugaiot.ui.recyclerview.glucoserecordresult.GlucoseRecordRecyclerViewData
+import com.example.sugaiot.ui.recyclerview.glucoserecordresult.GlucoseRecordsRecyclerViewAdapter
+import com.example.sugaiot.ui.recyclerview.glucoserecordresult.months
 import com.example.sugaiot.viewmodel.MainActivityViewModel
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -56,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     private val bluetoothLeScanner: BluetoothLeScanner? by lazy {
         bluetoothAdapter?.bluetoothLeScanner
     }
-
+    private val glucoseRecordsRecyclerViewAdapter = GlucoseRecordsRecyclerViewAdapter()
     private var sugaIOTBluetoothLeService: SugaIOTBluetoothLeService? = null
 
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
@@ -82,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         bluetoothGattStateInformationCallback =
         object : BluetoothGattStateInformationReceiver.BluetoothGattStateInformationCallback {
             override fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord) {
-                displayToast("Measurement ${glucoseMeasurementRecord.convertGlucoseConcentrationValueToMilligramsPerDeciliter()}")
+                mainActivityViewModel.addGlucoseMeasurementRecord(glucoseMeasurementRecord)
             }
 
             override fun connectedToAGattServer(connectedDevice: BluetoothDevice) {
@@ -97,6 +101,11 @@ class MainActivity : AppCompatActivity() {
                 if (boundState == BluetoothDevice.BOND_BONDED) {
                     displayToast("Bounded")
                 }
+            }
+
+            override fun recordsSentComplete() {
+                Log.i("GlucoseResult", "Records completed")
+                mainActivityViewModel.createGlucoseMeasurementRecordsRecyclerviewData()
             }
         }
     )
@@ -129,6 +138,10 @@ class MainActivity : AppCompatActivity() {
                     turnOnDeviceLocation()
                 }
             }
+            readAllResultsButton.setOnClickListener {
+                sugaIOTBluetoothLeService?.readAllResults()
+            }
+            glucoseRecordsResultRecyclerview.adapter = glucoseRecordsRecyclerViewAdapter
             discoveredPeersRecyclerView.adapter = bluetoothDevicesRecyclerViewAdapter
         }
         // create notification channel
@@ -147,6 +160,7 @@ class MainActivity : AppCompatActivity() {
             addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_DISCONNECTED_FROM_DEVICE)
             addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE)
             addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA)
+            addAction(BluetoothGattStateInformationReceiver.RECORDS_SENT_COMPLETE)
         }
         localBroadcastManager
             .registerReceiver(bluetoothGattStateInformationReceiver, intentFilter)
@@ -278,6 +292,18 @@ class MainActivity : AppCompatActivity() {
                     getString(R.string.stop_search_label)
                 } else {
                     getString(R.string.start_search_label)
+                }
+            }
+        }
+        mainActivityViewModel.glucoseRecordRecyclerViewDataList.observe(this) {
+            it?.let {
+                glucoseRecordsRecyclerViewAdapter.submitList(it)
+                if (it.isNotEmpty()) {
+                    activityMainBinding.apply {
+                        glucoseRecordsResultRecyclerview.animate().alpha(1f)
+                        discoveredPeersRecyclerView.animate().alpha(0f)
+                        startSearchButton.animate().alpha(0f)
+                    }
                 }
             }
         }

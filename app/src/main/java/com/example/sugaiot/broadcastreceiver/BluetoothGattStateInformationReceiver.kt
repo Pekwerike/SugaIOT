@@ -19,9 +19,10 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
 
     interface BluetoothGattStateInformationCallback {
         fun glucoseMeasurementRecordAvailable(glucoseMeasurementRecord: GlucoseMeasurementRecord)
-        fun connectedToAGattServer(connectedDevice : BluetoothDevice)
+        fun connectedToAGattServer(connectedDevice: BluetoothDevice)
         fun disconnectedFromAGattServer()
         fun bondStateExtra(boundState: Int)
+        fun recordsSentComplete()
     }
 
     companion object {
@@ -35,6 +36,8 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
             "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementRecordExtra"
         const val DEVICE_CONNECTED_TO_EXTRA =
             "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementDeviceConnectedToExtra"
+        const val RECORDS_SENT_COMPLETE =
+            "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementRecordSentComplete"
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -49,14 +52,19 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
                     bluetoothGattStateInformationCallback.disconnectedFromAGattServer()
                 }
                 BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE -> {
-                    intent.getParcelableExtra<GlucoseMeasurementRecord>(
-                        BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA
-                    )?.let { glucoseMeasurementRecord ->
-                        // send the new glucoseMeasurementRecord to the main activity to display it to the user
-                        bluetoothGattStateInformationCallback.glucoseMeasurementRecordAvailable(
-                            glucoseMeasurementRecord
-                        )
+                    synchronized(this) {
+                        intent.getParcelableExtra<GlucoseMeasurementRecord>(
+                            BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA
+                        )?.let { glucoseMeasurementRecord ->
+                            // send the new glucoseMeasurementRecord to the main activity to display it to the user
+                            bluetoothGattStateInformationCallback.glucoseMeasurementRecordAvailable(
+                                glucoseMeasurementRecord
+                            )
+                        }
                     }
+                }
+                RECORDS_SENT_COMPLETE -> {
+                    bluetoothGattStateInformationCallback.recordsSentComplete()
                 }
                 else -> {
 

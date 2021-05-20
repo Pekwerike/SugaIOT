@@ -2,14 +2,32 @@ package com.example.sugaiot.viewmodel
 
 import android.bluetooth.le.ScanResult
 import android.util.ArrayMap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.sugaiot.model.GlucoseMeasurementRecord
+import com.example.sugaiot.ui.recyclerview.glucoserecordresult.GlucoseRecordRecyclerViewData
+import com.example.sugaiot.ui.recyclerview.glucoserecordresult.months
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor() : ViewModel() {
+    private val collectionOfGlucoseResults: MutableList<GlucoseMeasurementRecord> = mutableListOf()
+    private val glucoseRecordRecyclerViewDataTempList: MutableList<GlucoseRecordRecyclerViewData> =
+        mutableListOf()
+    private val _glucoseRecordRecyclerViewDataList =
+        MutableLiveData<MutableList<GlucoseRecordRecyclerViewData>>(
+            mutableListOf()
+        )
+    val glucoseRecordRecyclerViewDataList: LiveData<MutableList<GlucoseRecordRecyclerViewData>>
+        get() = _glucoseRecordRecyclerViewDataList
 
     // boolean that determines the ui state of the search button
     private val _isScanning: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
@@ -29,9 +47,38 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
     fun addBluetoothLeScanResult(scanResult: ScanResult) {
         _bluetoothLeScanResultMap.apply {
             put(scanResult.scanRecord?.bytes.contentToString(), scanResult)
-            if(this.values.size > _bluetoothLeScanResult.value!!.size) {
+            if (this.values.size > _bluetoothLeScanResult.value!!.size) {
                 _bluetoothLeScanResult.value = values.toMutableList()
             }
         }
+    }
+
+    fun createGlucoseMeasurementRecordsRecyclerviewData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.i("GlucoseResult", "CollectionSize is ${collectionOfGlucoseResults.size}")
+            val groupedList = collectionOfGlucoseResults.groupBy {
+                "${it.calendar.get(Calendar.DAY_OF_MONTH)} " +
+                        "${months[it.calendar.get(Calendar.MONTH)]}, " +
+                        "${it.calendar.get(Calendar.YEAR)}"
+            }
+            groupedList.forEach { (t, u) ->
+                glucoseRecordRecyclerViewDataTempList.add(
+                    GlucoseRecordRecyclerViewData.GlucoseMeasurementGroup(
+                        t
+                    )
+                )
+                glucoseRecordRecyclerViewDataTempList.addAll(u.map {
+                    GlucoseRecordRecyclerViewData.GlucoseMeasurement(it)
+                })
+            }
+            withContext(Dispatchers.Main) {
+                _glucoseRecordRecyclerViewDataList.value = glucoseRecordRecyclerViewDataTempList
+            }
+        }
+    }
+
+    fun addGlucoseMeasurementRecord(glucoseMeasurementRecord: GlucoseMeasurementRecord) {
+        collectionOfGlucoseResults.add(glucoseMeasurementRecord)
+        Log.i("GlucoseResult", "Added ${glucoseMeasurementRecord.glucoseConcentrationValue}")
     }
 }

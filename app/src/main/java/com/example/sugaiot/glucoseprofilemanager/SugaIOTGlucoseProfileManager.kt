@@ -3,11 +3,18 @@ package com.example.sugaiot.glucoseprofilemanager
 import android.bluetooth.*
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.sugaiot.broadcastreceiver.BluetoothGattStateInformationReceiver
 import com.example.sugaiot.model.GlucoseMeasurementRecord
 import com.example.sugaiot.model.SensorStatusAnnunciation
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,7 +23,6 @@ import javax.inject.Singleton
 class SugaIOTGlucoseProfileManager @Inject constructor(
     private val localBroadcastManager: LocalBroadcastManager
 ) : BluetoothGattCallback() {
-    private var glucoseMeasurementRecord: GlucoseMeasurementRecord = GlucoseMeasurementRecord()
     private val bluetoothGattStateIntent = Intent()
     private var glucoseService: BluetoothGattService? = null
 
@@ -27,15 +33,16 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                     // TODO Use local broadcast manager to tell the application that the peripheral has been connected to
                     gatt?.let {
                         gatt.discoverServices()
-                        bluetoothGattStateIntent.apply {
-                            action =
-                                BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE
-                            putExtra(
-                                BluetoothGattStateInformationReceiver.DEVICE_CONNECTED_TO_EXTRA,
-                                gatt.device
-                            )
-                            localBroadcastManager.sendBroadcast(this)
-                        }
+                        Log.i("GlucoseResult", "Connected")
+                        /*   bluetoothGattStateIntent.apply {
+                               action =
+                                   BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_CONNECTED_TO_DEVICE
+                               putExtra(
+                                   BluetoothGattStateInformationReceiver.DEVICE_CONNECTED_TO_EXTRA,
+                                   gatt.device
+                               )
+                               localBroadcastManager.sendBroadcast(this)
+                           }*/
                     }
                 }
             }
@@ -53,6 +60,7 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
     override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
         // get the glucose  service
         gatt?.let {
+            Log.i("GlucoseResult", "DiscoveredServices")
             glucoseService =
                 gatt.getService(
                     GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID
@@ -77,6 +85,7 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
         status: Int
     ) {
         if (status == BluetoothGatt.GATT_SUCCESS && gatt != null) {
+            Log.i("GlucoseResult", "DescriptorWrite")
             descriptor?.let {
                 when (it.characteristic.uuid) {
                     GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
@@ -103,8 +112,8 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                     GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CONTEXT_CHARACTERISTIC_UUID -> {
                         // set characteristic indication on glucose record access control point characteristic
                         glucoseService!!
-                            .getCharacteristic(GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID)
-                            ?.let { recordAccessControlPointCharacteristic ->
+                            .getCharacteristic(GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID)!!
+                            .let { recordAccessControlPointCharacteristic ->
                                 setCharacteristicClientConfigDescriptor(
                                     gatt,
                                     recordAccessControlPointCharacteristic,
@@ -117,21 +126,26 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                         // done, indication set for record access control point characteristic
                         // go ahead and begin receiving notification
                         // write to the RACP to send all reports on patient glucose level
-                        val recordAccessControlPointCharacteristic = glucoseService!!
-                            .getCharacteristic(GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID)
-                        recordAccessControlPointCharacteristic?.let { racp ->
-                            racp.value = ByteArray(2)
-                            racp.setValue(
-                                GlucoseProfileConfiguration.OP_CODE_REPORT_STORED_RECORDS,
-                                BluetoothGattCharacteristic.FORMAT_UINT8,
-                                0
-                            )
-                            racp.setValue(
-                                GlucoseProfileConfiguration.OPERATOR_ALL_RECORDS,
-                                BluetoothGattCharacteristic.FORMAT_UINT8,
-                                1
-                            )
-                            gatt.writeCharacteristic(racp)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val recordAccessControlPointCharacteristic =
+                                gatt.getService(GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID)
+                                    .getCharacteristic(GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID)
+                            recordAccessControlPointCharacteristic!!.let { racp ->
+                                racp.value = ByteArray(2)
+                                racp.setValue(
+                                    GlucoseProfileConfiguration.OP_CODE_REPORT_STORED_RECORDS,
+                                    BluetoothGattCharacteristic.FORMAT_UINT8,
+                                    0
+                                )
+                                racp.setValue(
+                                    GlucoseProfileConfiguration.OPERATOR_ALL_RECORDS,
+                                    BluetoothGattCharacteristic.FORMAT_UINT8,
+                                    1
+                                )
+
+                                delay(400)
+                                gatt.writeCharacteristic(racp)
+                            }
                         }
                     }
                     else -> {
@@ -141,16 +155,18 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
         }
     }
 
+    val mutex = Mutex()
 
+    @Synchronized
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt?,
         characteristic: BluetoothGattCharacteristic?
     ) {
-        characteristic?.let {
+        Log.i("GlucoseResult", "CharacteristicsChanged")
+        characteristic!!.let {
             when (characteristic.uuid) {
                 GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
-                    glucoseMeasurementRecord = GlucoseMeasurementRecord()
-
+                    val glucoseMeasurementRecord = GlucoseMeasurementRecord()
                     var offset = 0
                     val flag: Int =
                         characteristic.getIntValue(
@@ -286,6 +302,11 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                             sensorStatusAnnunciation
 
                     }
+                    Log.i(
+                        "GlucoseResult",
+                        glucoseMeasurementRecord.glucoseConcentrationValue.toString()
+                    )
+
                     localBroadcastManager.sendBroadcast(bluetoothGattStateIntent.apply {
                         action =
                             BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE
@@ -300,13 +321,19 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                     // Todo, get characteristic value of the glucose measurement context characteristic
                 }
                 GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID -> {
-                    // Todo, send broad cast that operation is complete
+                    Log.i("GlucoseResult", "Records sent completely")
+                    localBroadcastManager.sendBroadcast(
+                        bluetoothGattStateIntent.apply {
+                            action = BluetoothGattStateInformationReceiver.RECORDS_SENT_COMPLETE
+                        }
+                    )
                 }
                 else -> {
 
                 }
             }
         }
+
     }
 
 
