@@ -57,7 +57,7 @@ class SugaIOTBluetoothLeService : Service() {
         }
     }
 
-    private fun connectToBluetoothLeDevice(device: BluetoothDevice) {
+    fun connectToBluetoothLeDevice(device: BluetoothDevice) {
         bluetoothGatt = device.connectGatt(
             this@SugaIOTBluetoothLeService,
             false,

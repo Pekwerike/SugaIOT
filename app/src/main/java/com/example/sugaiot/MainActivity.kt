@@ -7,10 +7,12 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.*
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.ParcelUuid
 import android.util.Log
+import android.view.View.GONE
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -102,7 +104,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun recordsSentComplete() {
-                Log.i("GlucoseResult", "Records completed")
+
                 mainActivityViewModel.createGlucoseMeasurementRecordsRecyclerviewData()
             }
         }
@@ -133,7 +135,8 @@ class MainActivity : AppCompatActivity() {
                 if (mainActivityViewModel.isScanning.value!!) {
                     stopScanForLeDevices()
                 } else {
-                    turnOnDeviceLocation()
+                    //   turnOnDeviceLocation()
+                    scanForLeDevices()
                 }
             }
 
@@ -146,6 +149,24 @@ class MainActivity : AppCompatActivity() {
         // bind to SugaIOTBluetoothService when ever on create is called
         Intent(this, SugaIOTBluetoothLeService::class.java).also { intent ->
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+        }
+
+        bluetoothAdapter?.bondedDevices?.map {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ScanResult(it, 1, 0, 0, 0, 0, 0, 0, null, 10L)
+            } else {
+                ScanResult(it, null, 0, 0L)
+            }
+        }?.forEach {
+            mainActivityViewModel.addBluetoothLeScanResult(it)
+        }
+
+        systemBluetoothEventReceiver.setBondStateChangedReceiver { i, bluetoothDevice ->
+            if (i == BluetoothDevice.BOND_BONDED && bluetoothDevice != null) {
+                sugaIOTBluetoothLeService?.connectToBluetoothLeDevice(
+                    bluetoothDevice
+                )
+            }
         }
     }
 
@@ -177,49 +198,49 @@ class MainActivity : AppCompatActivity() {
         mainActivityViewModel.scanStateUpdated()
     }
 
-    private fun turnOnDeviceLocation() {
+    /* private fun turnOnDeviceLocation() {
 
-        val locationRequestTwo = LocationRequest.create().apply {
-            interval = 6000
-            fastestInterval = 4000
-            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        }
+          val locationRequestTwo = LocationRequest.create().apply {
+              interval = 6000
+              fastestInterval = 4000
+              priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+          }
 
-        val locationRequest = LocationRequest.create().apply {
-            interval = 3000
-            fastestInterval = 1500
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-        val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest)
-            .addLocationRequest(locationRequestTwo)
+          val locationRequest = LocationRequest.create().apply {
+              interval = 3000
+              fastestInterval = 1500
+              priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+          }
+          val builder = LocationSettingsRequest.Builder()
+              .addLocationRequest(locationRequest)
+              .addLocationRequest(locationRequestTwo)
 
-        val client: SettingsClient = LocationServices.getSettingsClient(this)
-        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
-        task.addOnSuccessListener { locationSettingsResponse ->
-            scanForLeDevices()
-        }
-        task.addOnFailureListener { exception ->
-            if (exception is ResolvableApiException) {
-                try {
-                    exception.startResolutionForResult(this@MainActivity, CHECK_LOCATION_SETTINGS)
-                } catch (sendEx: IntentSender.SendIntentException) {
-                    // Ignore the error
-                }
-            }
-        }
-    }
+          val client: SettingsClient = LocationServices.getSettingsClient(this)
+          val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+          task.addOnSuccessListener { locationSettingsResponse ->
+              scanForLeDevices()
+          }
+          task.addOnFailureListener { exception ->
+              if (exception is ResolvableApiException) {
+                  try {
+                      exception.startResolutionForResult(this@MainActivity, CHECK_LOCATION_SETTINGS)
+                  } catch (sendEx: IntentSender.SendIntentException) {
+                      // Ignore the error
+                  }
+              }
+          }
+      } */
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            CHECK_LOCATION_SETTINGS -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    scanForLeDevices()
-                }
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
+    /* override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+         when (requestCode) {
+             CHECK_LOCATION_SETTINGS -> {
+                 if (resultCode == Activity.RESULT_OK) {
+                     scanForLeDevices()
+                 }
+             }
+         }
+         super.onActivityResult(requestCode, resultCode, data)
+     }*/
 
 
     private fun scanForLeDevices() {
@@ -237,7 +258,6 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             mainActivityViewModel.scanStateUpdated()
-            // todo, Improve the scan process to look for only devices with the glucose service uuid
             CoroutineScope(Dispatchers.Main).launch {
                 bluetoothLeScanner?.startScan(
                     mutableListOf<ScanFilter>(
@@ -279,6 +299,7 @@ class MainActivity : AppCompatActivity() {
                 bluetoothDevicesRecyclerViewAdapter.submitList(
                     it
                 )
+
             }
         }
 
@@ -299,6 +320,7 @@ class MainActivity : AppCompatActivity() {
                         glucoseRecordsResultRecyclerview.animate().alpha(1f)
                         discoveredPeersRecyclerView.animate().alpha(0f)
                         startSearchButton.animate().alpha(0f)
+                        discoveredPeersRecyclerView.visibility = GONE
                     }
                 }
             }
@@ -333,7 +355,8 @@ class MainActivity : AppCompatActivity() {
             && (requestCode == ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE)
         ) {
             if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                turnOnDeviceLocation()
+                //  turnOnDeviceLocation()
+                scanForLeDevices()
             } else {
                 // Handle situation when user denies app permission request
             }
