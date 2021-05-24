@@ -33,8 +33,6 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                     // TODO Use local broadcast manager to tell the application that the peripheral has been connected to
                     gatt?.let {
                         gatt.discoverServices()
-                        Log.i("GlucoseResult", "Connected")
-
                     }
                 }
 
@@ -46,13 +44,22 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                     }
                 }
             }
-        }
+        }/* else {
+            *//* could not get results from the glucose meter
+            Tell the user to turn on the glucose meter and try again
+            *//*
+            bluetoothGattStateIntent.apply {
+                action =
+                    BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_COULD_NOT_FETCH_GLUCOSE_RESULTS
+                localBroadcastManager.sendBroadcast(this)
+            }
+        }*/
     }
 
     override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
         // get the glucose  service
         gatt?.let {
-            Log.i("GlucoseResult", "DiscoveredServices")
+
             glucoseService =
                 gatt.getService(
                     GlucoseProfileConfiguration.GLUCOSE_SERVICE_UUID
@@ -77,7 +84,6 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
         status: Int
     ) {
         if (status == BluetoothGatt.GATT_SUCCESS && gatt != null) {
-            Log.i("GlucoseResult", "DescriptorWrite")
             descriptor?.let {
                 when (it.characteristic.uuid) {
                     GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
@@ -153,7 +159,7 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
         gatt: BluetoothGatt?,
         characteristic: BluetoothGattCharacteristic?
     ) {
-        Log.i("GlucoseResult", "CharacteristicsChanged")
+
         characteristic!!.let {
             when (characteristic.uuid) {
                 GlucoseProfileConfiguration.GLUCOSE_MEASUREMENT_CHARACTERISTIC_UUID -> {
@@ -308,7 +314,6 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                     // Todo, get characteristic value of the glucose measurement context characteristic
                 }
                 GlucoseProfileConfiguration.RECORD_ACCESS_CONTROL_POINT_CHARACTERISTIC_UUID -> {
-                    Log.i("GlucoseResult", "Records sent completely")
                     localBroadcastManager.sendBroadcast(
                         bluetoothGattStateIntent.apply {
                             action = BluetoothGattStateInformationReceiver.RECORDS_SENT_COMPLETE

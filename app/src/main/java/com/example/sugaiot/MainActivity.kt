@@ -38,6 +38,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 import java.util.*
 import javax.inject.Inject
 
@@ -104,8 +105,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun recordsSentComplete() {
-
                 mainActivityViewModel.createGlucoseMeasurementRecordsRecyclerviewData()
+            }
+
+            override fun couldNotFetchGlucoseResults() {
+                displayToast("Unable to connect to the glucose meter. Turn on your glucose meter and try again ")
             }
         }
     )
@@ -135,8 +139,8 @@ class MainActivity : AppCompatActivity() {
                 if (mainActivityViewModel.isScanning.value!!) {
                     stopScanForLeDevices()
                 } else {
-                    //   turnOnDeviceLocation()
-                    scanForLeDevices()
+                    turnOnDeviceLocation()
+                    //scanForLeDevices()
                 }
             }
 
@@ -151,9 +155,11 @@ class MainActivity : AppCompatActivity() {
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
 
-        bluetoothAdapter?.bondedDevices?.map {
+        bluetoothAdapter?.bondedDevices?.filter {
+            it.type == BluetoothDevice.DEVICE_TYPE_LE
+        }?.map {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ScanResult(it, 1, 0, 0, 0, 0, 0, 0, null, 10L)
+                ScanResult(it, 1, 0, 0, 0, 0, 0, 0, null, 0L)
             } else {
                 ScanResult(it, null, 0, 0L)
             }
@@ -178,12 +184,14 @@ class MainActivity : AppCompatActivity() {
             addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE)
             addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA)
             addAction(BluetoothGattStateInformationReceiver.RECORDS_SENT_COMPLETE)
+            addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_COULD_NOT_FETCH_GLUCOSE_RESULTS)
         }
         localBroadcastManager
             .registerReceiver(bluetoothGattStateInformationReceiver, intentFilter)
     }
 
     private fun connectToBluetoothLeDevice(device: BluetoothDevice) {
+        // stopScanForLeDevices()
         // onConnect to device, put the SugaIOTBluetoothLeService in the foreground
         Intent(this, SugaIOTBluetoothLeService::class.java).also { intent ->
             intent.putExtra(SugaIOTBluetoothLeService.DEVICE_TO_CONNECT_EXTRA, device)
@@ -198,49 +206,49 @@ class MainActivity : AppCompatActivity() {
         mainActivityViewModel.scanStateUpdated()
     }
 
-    /* private fun turnOnDeviceLocation() {
+    private fun turnOnDeviceLocation() {
 
-          val locationRequestTwo = LocationRequest.create().apply {
-              interval = 6000
-              fastestInterval = 4000
-              priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-          }
+        val locationRequestTwo = LocationRequest.create().apply {
+            interval = 6000
+            fastestInterval = 4000
+            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        }
 
-          val locationRequest = LocationRequest.create().apply {
-              interval = 3000
-              fastestInterval = 1500
-              priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-          }
-          val builder = LocationSettingsRequest.Builder()
-              .addLocationRequest(locationRequest)
-              .addLocationRequest(locationRequestTwo)
+        val locationRequest = LocationRequest.create().apply {
+            interval = 3000
+            fastestInterval = 1500
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .addLocationRequest(locationRequestTwo)
 
-          val client: SettingsClient = LocationServices.getSettingsClient(this)
-          val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
-          task.addOnSuccessListener { locationSettingsResponse ->
-              scanForLeDevices()
-          }
-          task.addOnFailureListener { exception ->
-              if (exception is ResolvableApiException) {
-                  try {
-                      exception.startResolutionForResult(this@MainActivity, CHECK_LOCATION_SETTINGS)
-                  } catch (sendEx: IntentSender.SendIntentException) {
-                      // Ignore the error
-                  }
-              }
-          }
-      } */
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+        task.addOnSuccessListener { locationSettingsResponse ->
+            scanForLeDevices()
+        }
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(this@MainActivity, CHECK_LOCATION_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error
+                }
+            }
+        }
+    }
 
-    /* override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-         when (requestCode) {
-             CHECK_LOCATION_SETTINGS -> {
-                 if (resultCode == Activity.RESULT_OK) {
-                     scanForLeDevices()
-                 }
-             }
-         }
-         super.onActivityResult(requestCode, resultCode, data)
-     }*/
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            CHECK_LOCATION_SETTINGS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    scanForLeDevices()
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 
 
     private fun scanForLeDevices() {
@@ -270,7 +278,11 @@ class MainActivity : AppCompatActivity() {
                     ).build(), bluetoothLeScanCallback
                 )
                 delay(60000) // stop scan after 1 minute
-                bluetoothLeScanner?.stopScan(bluetoothLeScanCallback)
+                try {
+                    bluetoothLeScanner?.stopScan(bluetoothLeScanCallback)
+                } catch (btAdapterNotTurnedOn: IllegalStateException) {
+
+                }
                 mainActivityViewModel.scanStateUpdated()
             }
         }
@@ -299,7 +311,6 @@ class MainActivity : AppCompatActivity() {
                 bluetoothDevicesRecyclerViewAdapter.submitList(
                     it
                 )
-
             }
         }
 
@@ -320,6 +331,7 @@ class MainActivity : AppCompatActivity() {
                         glucoseRecordsResultRecyclerview.animate().alpha(1f)
                         discoveredPeersRecyclerView.animate().alpha(0f)
                         startSearchButton.animate().alpha(0f)
+                        userGuideLabelTextView.animate().alpha(0f)
                         discoveredPeersRecyclerView.visibility = GONE
                     }
                 }
@@ -355,8 +367,8 @@ class MainActivity : AppCompatActivity() {
             && (requestCode == ACCESS_TO_FINE_LOCATION_PERMISSION_REQUEST_CODE)
         ) {
             if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                //  turnOnDeviceLocation()
-                scanForLeDevices()
+                turnOnDeviceLocation()
+                //scanForLeDevices()
             } else {
                 // Handle situation when user denies app permission request
             }
@@ -395,8 +407,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        // unbind from SugaIOTBluetoothLeService when onDestroy is called
-        sugaIOTBluetoothLeService?.unbindService(serviceConnection)
+        // stop SugaIOTBluetoothLeService when onDestroy is called
+        sugaIOTBluetoothLeService?.stopSelf()
         super.onDestroy()
     }
 }

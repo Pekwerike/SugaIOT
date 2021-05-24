@@ -59,27 +59,33 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
     }
 
     fun createGlucoseMeasurementRecordsRecyclerviewData() {
-        viewModelScope.launch(Dispatchers.IO) {
-
-            val groupedList = collectionOfGlucoseResults.toSet().reversed().groupBy {
-                    "${it.calendar.get(Calendar.DAY_OF_MONTH)} " +
-                            "${months[it.calendar.get(Calendar.MONTH)]}, " +
-                            "${it.calendar.get(Calendar.YEAR)}"
+            viewModelScope.launch(Dispatchers.Default) {
+                try {
+                    val groupedList = collectionOfGlucoseResults.toSet().reversed().groupBy {
+                        "${it.calendar.get(Calendar.DAY_OF_MONTH)} " +
+                                "${months[it.calendar.get(Calendar.MONTH)]}, " +
+                                "${it.calendar.get(Calendar.YEAR)}"
+                    }
+                    groupedList.forEach { (t, u) ->
+                        glucoseRecordRecyclerViewDataTempList.add(
+                            GlucoseRecordRecyclerViewData.GlucoseMeasurementGroup(
+                                t
+                            )
+                        )
+                        glucoseRecordRecyclerViewDataTempList.addAll(u.map {
+                            GlucoseRecordRecyclerViewData.GlucoseMeasurement(it)
+                        })
+                    }
+                    withContext(Dispatchers.Main) {
+                        _glucoseRecordRecyclerViewDataList.value =
+                            glucoseRecordRecyclerViewDataTempList
+                    }
+                } catch (arrayIndexOutOfBounds: ArrayIndexOutOfBoundsException) {
+                    // createGlucoseMeasurementRecordsRecyclerviewData()
+                    _glucoseRecordRecyclerViewDataList.value = mutableListOf()
+                    createGlucoseMeasurementRecordsRecyclerviewData()
                 }
-            groupedList.forEach { (t, u) ->
-                glucoseRecordRecyclerViewDataTempList.add(
-                    GlucoseRecordRecyclerViewData.GlucoseMeasurementGroup(
-                        t
-                    )
-                )
-                glucoseRecordRecyclerViewDataTempList.addAll(u.map {
-                    GlucoseRecordRecyclerViewData.GlucoseMeasurement(it)
-                })
             }
-            withContext(Dispatchers.Main) {
-                _glucoseRecordRecyclerViewDataList.value = glucoseRecordRecyclerViewDataTempList
-            }
-        }
     }
 
     fun addGlucoseMeasurementRecord(glucoseMeasurementRecord: GlucoseMeasurementRecord) {

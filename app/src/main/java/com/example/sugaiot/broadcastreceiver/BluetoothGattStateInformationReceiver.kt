@@ -23,6 +23,7 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
         fun disconnectedFromAGattServer()
         fun bondStateExtra(boundState: Int)
         fun recordsSentComplete()
+        fun couldNotFetchGlucoseResults()
     }
 
     companion object {
@@ -38,6 +39,8 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
             "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementDeviceConnectedToExtra"
         const val RECORDS_SENT_COMPLETE =
             "com.pekwerike.sugaiot.bluetoothLeGattGlucoseMeasurementRecordSentComplete"
+        const val BLUETOOTH_LE_GATT_ACTION_COULD_NOT_FETCH_GLUCOSE_RESULTS =
+            "com.pekwerike.sugaiot.bluetoothLeGattCouldNotFetchGlucoseResults"
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -65,6 +68,9 @@ class BluetoothGattStateInformationReceiver(private val bluetoothGattStateInform
                 }
                 RECORDS_SENT_COMPLETE -> {
                     bluetoothGattStateInformationCallback.recordsSentComplete()
+                }
+                BLUETOOTH_LE_GATT_ACTION_COULD_NOT_FETCH_GLUCOSE_RESULTS -> {
+                    bluetoothGattStateInformationCallback.couldNotFetchGlucoseResults()
                 }
                 else -> {
 

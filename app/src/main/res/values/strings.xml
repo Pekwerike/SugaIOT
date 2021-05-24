@@ -8,4 +8,7 @@
     <string name="communicating_with_glucose_sensor_notification_title">Communicating with Glucose Sensor</string>
     <string name="communicating_with_glucose_sensor_notification_text">SugaIOT has started reading data from the glucose meter</string>
     <string name="device_details">Device details</string>
+    <string name="get_results_label">Get Results</string>
+    <string name="pro_tip">Pro tip:\nIf you click to connect to a glucose meter, you will be required to enter the six digit pin
+    at the back of your glucose meter.\nIf the input field doesn\'t appear on screen, kindly check your notification.</string>
 </resources>

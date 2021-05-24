@@ -63,6 +63,5 @@ class SugaIOTBluetoothLeService : Service() {
             false,
             sugaIOTGlucoseProfileManager
         )
-        device.createBond()
     }
 }

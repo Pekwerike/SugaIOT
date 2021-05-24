@@ -29,10 +29,10 @@ class NotificationUtils @Inject constructor(
             val glucoseSensorNotificationChannel = NotificationChannel(
                 context.getString(R.string.communicating_with_glucose_sensor_notification_id),
                 context.getString(R.string.communicating_with_glucose_sensor_notification_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             )
                 .apply {
-                    setDescription("This notification channel is responsible for alerting you that ZipBolt is sharing files on the background")
+                    description = "This notification channel is responsible for alerting you that ZipBolt is sharing files on the background"
                     setShowBadge(false)
                 }
             notificationManager.createNotificationChannel(glucoseSensorNotificationChannel)
