@@ -105,11 +105,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun recordsSentComplete() {
-                mainActivityViewModel.createGlucoseMeasurementRecordsRecyclerviewData()
-            }
-
-            override fun couldNotFetchGlucoseResults() {
-                displayToast("Unable to connect to the glucose meter. Turn on your glucose meter and try again ")
+                if (!mainActivityViewModel.recordsSentCompletely) {
+                    mainActivityViewModel.createGlucoseMeasurementRecordsRecyclerviewData()
+                }
             }
         }
     )
@@ -155,18 +153,6 @@ class MainActivity : AppCompatActivity() {
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
 
-        bluetoothAdapter?.bondedDevices?.filter {
-            it.type == BluetoothDevice.DEVICE_TYPE_LE
-        }?.map {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ScanResult(it, 1, 0, 0, 0, 0, 0, 0, null, 0L)
-            } else {
-                ScanResult(it, null, 0, 0L)
-            }
-        }?.forEach {
-            mainActivityViewModel.addBluetoothLeScanResult(it)
-        }
-
         systemBluetoothEventReceiver.setBondStateChangedReceiver { i, bluetoothDevice ->
             if (i == BluetoothDevice.BOND_BONDED && bluetoothDevice != null) {
                 sugaIOTBluetoothLeService?.connectToBluetoothLeDevice(
@@ -184,7 +170,6 @@ class MainActivity : AppCompatActivity() {
             addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_GLUCOSE_MEASUREMENT_RECORD_AVAILABLE)
             addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_GLUCOSE_MEASUREMENT_RECORD_EXTRA)
             addAction(BluetoothGattStateInformationReceiver.RECORDS_SENT_COMPLETE)
-            addAction(BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_COULD_NOT_FETCH_GLUCOSE_RESULTS)
         }
         localBroadcastManager
             .registerReceiver(bluetoothGattStateInformationReceiver, intentFilter)

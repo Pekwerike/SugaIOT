@@ -44,16 +44,7 @@ class SugaIOTGlucoseProfileManager @Inject constructor(
                     }
                 }
             }
-        }/* else {
-            *//* could not get results from the glucose meter
-            Tell the user to turn on the glucose meter and try again
-            *//*
-            bluetoothGattStateIntent.apply {
-                action =
-                    BluetoothGattStateInformationReceiver.BLUETOOTH_LE_GATT_ACTION_COULD_NOT_FETCH_GLUCOSE_RESULTS
-                localBroadcastManager.sendBroadcast(this)
-            }
-        }*/
+        }
     }
 
     override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {

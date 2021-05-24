@@ -28,9 +28,10 @@ class BluetoothDeviceLayoutItemViewHolder(
                     true
                 }
             ) "Can connect" else "Cannot connect"
-
-            if(bluetoothScanResult.timestampNanos == 0L){
+            if(bluetoothScanResult.device.bondState == BluetoothDevice.BOND_BONDED){
                 connectToBluetoothDeviceButton.text = root.context.getString(R.string.get_results_label)
+            }else {
+                connectToBluetoothDeviceButton.text = root.context.getString(R.string.connect)
             }
             connectToBluetoothDeviceButton.setOnClickListener {
                 bluetoothDeviceOnConnectClickListener.onConnectClicked(

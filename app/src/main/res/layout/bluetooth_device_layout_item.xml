@@ -59,7 +59,7 @@
             android:layout_margin="4dp"
             android:paddingHorizontal="8dp"
             android:paddingVertical="2dp"
-            android:text="@string/connect"
+            android:text="@string/get_results_label"
             android:textAllCaps="false" />
     </LinearLayout>
 </layout>
