@@ -24,9 +24,7 @@ class SystemBluetoothEventReceiver : BroadcastReceiver() {
                     val currentBondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 10)
                     val previousBondState =
                         intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, 10)
-                    if (currentBondState == BluetoothDevice.BOND_BONDED && (previousBondState == BluetoothDevice.BOND_NONE ||
-                                previousBondState == BluetoothDevice.BOND_BONDING)
-                    ) {
+                    if (currentBondState == BluetoothDevice.BOND_BONDED) {
                         val bondedDevice = intent.getParcelableExtra<BluetoothDevice>(
                             BluetoothDevice.EXTRA_DEVICE
                         )
