@@ -26,6 +26,8 @@ SugaIOT requires the following runtime permission from the user
 ## ScreenShot
  <img src="https://user-images.githubusercontent.com/43956851/116695390-78c22c80-a9b8-11eb-9b0e-76f3d3caec2b.jpg" width="320" height="620">
 
+## Demo 
+Youtube video demo(https://www.youtube.com/watch?v=BSC11n1Fvz4)
 ## How to Install 
 Clone the repository and open the project in any Android Studio version >= 4.0 
 
